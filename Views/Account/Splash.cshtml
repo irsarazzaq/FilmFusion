@@ -1,0 +1,53 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900">
+<head>
+    <meta charset="utf-8" />
+    <title>FilmFusion</title>
+    <script src="https://unpkg.com/@@tailwindcss/browser@@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        .cinema-mesh-overlay {
+        background-image: linear-gradient(to top, rgba(15, 23, 42, 0.8) 30%, rgba(30, 41, 59, 0.4) 100%), url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1920&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        }
+    </style>
+</head>
+<body class="h-full cinema-mesh-overlay flex flex-col justify-between p-8 md:p-12 select-none text-slate-100 cursor-pointer" onclick="goToChannels()">
+
+    <div class="flex items-center justify-between w-full">
+        <div class="flex items-center gap-2 bg-slate-800/70 border border-slate-700/40 px-4 py-1.5 rounded-full backdrop-blur-md">
+            <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+            <span class="text-[10px] font-mono tracking-widest text-slate-300 uppercase">System Active</span>
+        </div>
+        <i class="fa-solid fa-compact-disc text-indigo-400/70 text-xl animate-spin"></i>
+    </div>
+
+    <div class="text-center max-w-2xl mx-auto transform -translate-y-4">
+        <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl mb-5 shadow-xl shadow-indigo-500/30">
+            <i class="fa-solid fa-clapperboard text-white text-3xl"></i>
+        </div>
+        <h1 class="text-6xl font-black tracking-tight text-white uppercase drop-shadow-lg">
+            FilmFusion
+        </h1>
+        <p class="text-sm md:text-base text-slate-200 font-normal tracking-wide mt-4 max-w-md mx-auto leading-relaxed">
+            Your centralized portal for intelligence analytics streaming dashboard management.
+        </p>
+    </div>
+
+    <div class="text-center pb-2">
+        <p class="text-xs font-semibold tracking-widest text-slate-300 uppercase animate-pulse">
+            Click Anywhere To Continue
+        </p>
+    </div>
+
+    <script>
+        function goToChannels() {
+        window.location.href = '@Url.Action("ChooseRole", "Account")';
+        }
+    </script>
+</body>
+</html>

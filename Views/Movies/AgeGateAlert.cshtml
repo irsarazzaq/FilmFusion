@@ -1,0 +1,77 @@
+﻿@model FilmFusion.Models.Movie
+@{
+    Layout = null;
+    var errorMsg = TempData["AgeGateError"]?.ToString() ?? "Access Restriction Vector Triggered.";
+    var safeRecommendations = ViewData["SafeRecommendations"] as IEnumerable<FilmFusion.Models.Movie>;
+}
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900">
+<head>
+    <meta charset="utf-8" />
+    <title>Access Restrained - FilmFusion Safety Net</title>
+    <script src="https://unpkg.com/@@tailwindcss/browser@@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body class="h-full bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100 flex flex-col font-sans select-none">
+
+    <header class="bg-slate-900/50 border-b border-slate-800 backdrop-blur-md px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-rose-600 rounded-xl flex items-center justify-center text-white"><i class="fa-solid fa-shield-halved text-xs"></i></div>
+            <span class="font-black text-base tracking-wider uppercase">Film<span class="text-rose-500">Fusion</span> Safety</span>
+        </div>
+        <a href="@Url.Action("Index", "Home")" class="px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs font-medium hover:text-indigo-400 transition-all"><i class="fa-solid fa-arrow-left mr-1"></i> Dashboard</a>
+    </header>
+
+    <main class="flex-1 p-6 max-w-5xl w-full mx-auto flex flex-col justify-center items-center text-center space-y-8">
+        
+        <div class="bg-rose-950/20 border border-rose-900/40 rounded-2xl p-8 max-w-xl shadow-2xl">
+            <div class="w-14 h-14 bg-rose-500/10 border border-rose-500/30 rounded-full flex items-center justify-center text-rose-500 text-xl mx-auto mb-4 animate-pulse">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h1 class="text-xl font-black text-white uppercase tracking-tight">Content Age-Gate Restriction</h1>
+            <p class="text-xs text-rose-300/80 font-mono mt-3 bg-rose-950/50 p-3 rounded-xl border border-rose-900/30">
+                @errorMsg
+            </p>
+            <p class="text-[11px] text-slate-400 mt-4">
+                This asset model cluster (<span class="text-slate-200 font-bold">@Model.Title</span>) contains content mapping vectors calibrated strictly for indices scale <span class="text-rose-400 font-mono">@Model.TargetAgeLimit+</span>.
+            </p>
+        </div>
+
+        <div class="w-full space-y-4">
+            <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-circle-check text-emerald-500"></i> Safe Alternative Vault Recommendations
+            </h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                @if (safeRecommendations == null || !safeRecommendations.Any())
+                {
+                    <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 text-center col-span-full italic text-xs text-slate-500">
+                        No secondary matrix logs matching your age preference thresholds found inside the repository.
+                    </div>
+                }
+                else
+                {
+                    foreach (var movie in safeRecommendations)
+                    {
+                        <a asp-controller="Movies" asp-action="Details" asp-route-id="@movie.Id" class="group bg-slate-900/60 border border-slate-800 hover:border-indigo-500/50 rounded-xl overflow-hidden p-3 transition-all text-left flex flex-col justify-between">
+                            <div>
+                                <div class="aspect-video bg-slate-950 rounded-lg overflow-hidden relative mb-2">
+                                    <img src="@movie.PosterUrl" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                    <div class="absolute top-1 right-1 bg-slate-900 px-1 rounded text-[9px] font-mono font-bold text-emerald-400 border border-emerald-900/30">@movie.TargetAgeLimit+</div>
+                                </div>
+                                <h3 class="font-bold text-xs text-slate-200 truncate group-hover:text-white">@movie.Title</h3>
+                                <p class="text-[10px] text-slate-400 mt-0.5 truncate">@movie.Genre</p>
+                            </div>
+                            <span class="text-[9px] text-indigo-400 font-bold uppercase tracking-wider mt-3 inline-block">Load Channel &rarr;</span>
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-slate-950 border-t border-slate-900 py-3 text-center text-[9px] font-mono text-slate-600">
+        FilmFusion Security Pipeline Operational Framework Log Node.
+    </footer>
+</body>
+</html>s

@@ -1,0 +1,188 @@
+﻿@model FilmFusion.Models.Movie
+@{
+    Layout = null;
+    string userRole = Context.Session.GetString("UserRole") ?? "User";
+}
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950">
+<head>
+    <meta charset="utf-8" />
+    <title>Streaming Node: @Model.Title - FilmFusion Engine</title>
+    <script src="https://unpkg.com/@@tailwindcss/browser@@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body class="h-full text-slate-100 flex flex-col font-sans select-none overflow-x-hidden">
+
+    <header class="bg-slate-900/40 border-b border-slate-800 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <a href="@Url.Action("Index", "Home")" class="w-8 h-8 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl flex items-center justify-center text-xs transition-all">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <div>
+                <span class="text-[9px] font-mono tracking-widest text-indigo-400 uppercase">Stream Vault Channel</span>
+                <h1 class="text-xs font-bold text-white truncate max-w-[200px] sm:max-w-xs">@Model.Title</h1>
+            </div>
+        </div>
+        <div id="networkStatusBadge" class="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[9px] font-mono text-emerald-400 flex items-center gap-1.5 animate-pulse">
+            <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span> LINKED ONLINE
+        </div>
+    </header>
+
+    <main class="flex-1 p-4 lg:p-8 max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        
+        <div class="lg:col-span-2 space-y-4">
+            <div class="bg-black border border-slate-800 rounded-2xl overflow-hidden shadow-2xl relative aspect-video group">
+                <video id="ffMediaPlayer" class="w-full h-full object-contain" controls poster="@Model.PosterUrl">
+                    <source id="videoMediaSource" src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
+                </video>
+                
+                <div id="offlinePlayerOverlay" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md hidden flex-col items-center justify-center text-center p-6 z-10">
+                    <i class="fa-solid fa-cloud-moon text-indigo-400 text-4xl mb-3 animate-bounce"></i>
+                    <h3 class="text-sm font-black uppercase text-white tracking-wider">Offline Cache Delivery Protocol</h3>
+                    <p class="text-xs text-slate-400 max-w-xs mt-1">Network link is down. Playing directly from browser storage.</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/30 border border-slate-800/60 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 bg-slate-950 border border-slate-800 text-slate-400 font-mono text-[9px] rounded uppercase">@Model.Genre</span>
+                        <span class="px-1.5 py-0.5 bg-indigo-950 border border-indigo-900 text-indigo-400 font-mono text-[9px] rounded">@Model.Duration</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-2 max-w-xl">@Model.Description</p>
+                </div>
+
+                <div class="flex flex-col sm:items-end gap-2 min-w-[160px]">
+                    <button id="btnDownloadPipeline" onclick="triggerBlobDownload()" class="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg shadow-indigo-600/10 flex items-center justify-center gap-2 transition-all cursor-pointer">
+                        <i id="downloadIcon" class="fa-solid fa-cloud-arrow-down"></i> <span id="downloadText">Download Offline</span>
+                    </button>
+                    <div id="downloadProgressWrapper" class="w-full bg-slate-950 rounded-full h-1.5 border border-slate-800 hidden overflow-hidden">
+                        <div id="downloadProgressBar" class="bg-gradient-to-r from-indigo-500 to-emerald-500 h-full w-0 transition-all duration-150"></div>
+                    </div>
+                    <span id="downloadStatusLog" class="text-[9px] font-mono text-slate-500 uppercase tracking-tight">Status: Ready to Sync</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            <div class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 space-y-4">
+                <div class="aspect-[3/4] rounded-xl overflow-hidden bg-slate-950 border border-slate-800 shadow-md">
+                    <img src="@Model.PosterUrl" class="w-full h-full object-cover" />
+                </div>
+                <hr class="border-slate-800/60" />
+                <div class="space-y-3">
+                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 font-mono">Security Context Parameters</h3>
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
+                        <span class="text-xs text-slate-400">Enforced Age Gate Limit</span>
+                        <span class="text-xs font-mono font-bold text-indigo-400">@Model.TargetAgeLimit+ Years Old</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const mediaVideo = document.getElementById('ffMediaPlayer');
+        const mediaSource = document.getElementById('videoMediaSource');
+        const cacheStoreKey = "FilmFusion-StreamCache-v1";
+        const targetMovieFileUrl = mediaSource.src;
+        const storageAssetIdentifier = "movie-blob-node-@Model.Id";
+
+        window.addEventListener('online', checkNetworkTopology);
+        window.addEventListener('offline', checkNetworkTopology);
+
+        function checkNetworkTopology() {
+        const badge = document.getElementById('networkStatusBadge');
+        const offlineMask = document.getElementById('offlinePlayerOverlay');
+
+        if (navigator.onLine) {
+        badge.className = "px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[9px] font-mono text-emerald-400 flex items-center gap-1.5 animate-pulse";
+        badge.innerHTML = `<span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span> LINKED ONLINE`;
+        offlineMask.classList.add('hidden');
+        } else {
+        badge.className = "px-2.5 py-1 bg-rose-500/10 border border-rose-500/20 rounded-full text-[9px] font-mono text-rose-400 flex items-center gap-1.5";
+        badge.innerHTML = `<span class="w-1.5 h-1.5 bg-rose-400 rounded-full"></span> OFFLINE MODE`;
+        loadCachedOfflineBlob();
+        }
+        }
+
+        async function triggerBlobDownload() {
+        const btn = document.getElementById('btnDownloadPipeline');
+        const progressWrap = document.getElementById('downloadProgressWrapper');
+        const progressBar = document.getElementById('downloadProgressBar');
+        const logStatus = document.getElementById('downloadStatusLog');
+        const icon = document.getElementById('downloadIcon');
+        const txt = document.getElementById('downloadText');
+
+        try {
+        btn.disabled = true;
+        progressWrap.classList.remove('hidden');
+        icon.className = "fa-solid fa-spinner animate-spin text-amber-400";
+        txt.innerText = "Syncing Bytes...";
+
+        const cacheStorage = await caches.open(cacheStoreKey);
+        const networkResponse = await fetch(targetMovieFileUrl);
+        if (!networkResponse.ok) throw new Error("Network drop.");
+
+        const totalBytesLength = +networkResponse.headers.get('Content-Length') || 10500000;
+        const dataReader = networkResponse.body.getReader();
+        let receivedBytesCount = 0;
+        let chunksArray = [];
+
+        while(true) {
+        const {done, value} = await dataReader.read();
+        if (done) break;
+                    
+        chunksArray.push(value);
+        receivedBytesCount += value.length;
+                    
+        const computePercentage = Math.round((receivedBytesCount / totalBytesLength) * 100);
+        progressBar.style.width = `\${Math.min(computePercentage, 100)}%`;
+        logStatus.innerText = `Status: Syncing Data (\${computePercentage}%)`;
+        }
+
+        const completeBlob = new Blob(chunksArray, { type: 'video/mp4' });
+        const storageResponsePacket = new Response(completeBlob);
+        await cacheStorage.put(storageAssetIdentifier, storageResponsePacket);
+
+        icon.className = "fa-solid fa-circle-check text-emerald-400";
+        txt.innerText = "Saved Offline";
+        logStatus.innerText = "Status: Encrypted in Cache Registry";
+        progressBar.style.width = "100%";
+        btn.className = "w-full sm:w-auto px-4 py-2 bg-slate-900 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider rounded-xl flex items-center justify-center gap-2";
+
+        } catch (err) {
+        icon.className = "fa-solid fa-triangle-exclamation text-rose-500";
+        txt.innerText = "Sync Failed";
+        btn.disabled = false;
+        }
+        }
+
+        async function loadCachedOfflineBlob() {
+        const offlineMask = document.getElementById('offlinePlayerOverlay');
+        try {
+        const cacheStorage = await caches.open(cacheStoreKey);
+        const localSavedAsset = await cacheStorage.match(storageAssetIdentifier);
+
+        if (localSavedAsset) {
+        offlineMask.classList.add('hidden');
+        const videoStreamBlob = await localSavedAsset.blob();
+        const secureLocalBlobUrl = URL.createObjectURL(videoStreamBlob);
+                    
+        mediaVideo.pause();
+        mediaSource.src = secureLocalBlobUrl;
+        mediaVideo.load();
+        mediaVideo.play();
+        } else {
+        offlineMask.classList.remove('hidden');
+        }
+        } catch (e) {
+        offlineMask.classList.remove('hidden');
+        }
+        }
+
+        checkNetworkTopology();
+    </script>
+</body>
+</html>
