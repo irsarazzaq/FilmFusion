@@ -1,57 +1,70 @@
 ﻿@{
-    Layout = null;
+    Layout = "_AuthLayout";
 }
-<!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-900">
-<head>
-    <meta charset="utf-8" />
-    <title>Profile Survey Calibration</title>
-    <script src="https://unpkg.com/@@tailwindcss/browser@@4"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-</head>
-<body class="h-full bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center p-4 text-slate-200">
 
-    <div class="max-w-md w-full bg-slate-800 border border-slate-700/70 rounded-2xl p-6 shadow-xl">
-        <div class="mb-5 text-center">
-            <h2 class="text-xl font-bold text-white">Preference Calibration</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Specify baseline configuration metrics to structure the streaming module logs.</p>
-        </div>
-
-        <form asp-action="SaveOnboardingData" method="post" class="space-y-4">
-            
-            <div>
-                <label class="text-xs font-semibold text-slate-300 block mb-1.5">Age Matrix Profile: <span id="ageDisplay" class="text-indigo-400 font-bold ml-0.5">18</span> Years</label>
-                <input type="range" name="age" min="6" max="90" value="18" class="w-full accent-indigo-500 bg-slate-900 h-1.5 rounded-lg cursor-pointer" oninput="document.getElementById('ageDisplay').innerText = this.value" />
-            </div>
-
-            <div>
-                <label class="text-xs font-semibold text-slate-300 block mb-1">Gender Identification</label>
-                <select name="gender" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Non-Binary / Undisclosed</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="text-xs font-semibold text-slate-300 block mb-1">Preferred Genres (Comma Separated)</label>
-                <input type="text" name="preferredGenres" required class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500" placeholder="Action, Sci-Fi, Thriller..." />
-            </div>
-
-            <div>
-                <label class="text-xs font-semibold text-slate-300 block mb-1">Streaming Sync Frequency</label>
-                <select name="watchFrequency" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-                    <option value="Daily">Daily standard tracking logs</option>
-                    <option value="Weekends">Weekend active interval sessions</option>
-                    <option value="Rarely">Intermittent evaluation cycles</option>
-                </select>
-            </div>
-
-            <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold rounded-xl text-xs transition-all shadow-md mt-2 cursor-pointer">
-                Save Tracking Configurations
-            </button>
-        </form>
+<div class="max-w-xl w-full bg-slate-900/40 backdrop-blur-xl border border-slate-800/60 rounded-3xl p-8 shadow-2xl space-y-6">
+    <div>
+        <h2 class="text-xl font-black uppercase tracking-wider text-emerald-400"><i class="fa-solid fa-sliders mr-1"></i> Personalization Matrix</h2>
+        <p class="text-xs text-slate-400 mt-1">Step 2 of 2: Tailoring your AI Recommendation Engine</p>
     </div>
 
-</body>
-</html>
+    <form asp-action="SetupProfile" method="post" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1">Full Legal Name</label>
+                <input type="text" name="fullName" required placeholder="Irsa Razzaq" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div>
+                <label class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1">Your Age Parameter</label>
+                <input type="number" name="age" required min="10" max="100" placeholder="21" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500" />
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1">Primary Genre Vector</label>
+                <select name="preferredGenre" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-300 focus:outline-none focus:border-emerald-500">
+                    <option value="Sci-Fi & Cyberpunk">Sci-Fi & Cyberpunk</option>
+                    <option value="Psychological Thriller">Psychological Thriller</option>
+                    <option value="Action & Suspense">Action & Suspense</option>
+                    <option value="Romance & Drama">Romance & Drama</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1">Language Track Preference</label>
+                <select name="languagePreference" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-300 focus:outline-none focus:border-emerald-500">
+                    <option value="English (With Subtitles)">English (With Subtitles)</option>
+                    <option value="Hindi / Urdu Core">Hindi / Urdu Core</option>
+                    <option value="Korean / K-Drama">Korean / K-Drama</option>
+                </select>
+            </div>
+        </div>
+
+        <div>
+            <label class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1">How often do you watch movies?</label>
+            <div class="grid grid-cols-3 gap-2 mt-1">
+                <label class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-center cursor-pointer block hover:border-emerald-500/50">
+                    <input type="radio" name="watchFrequency" value="Daily" checked class="accent-emerald-500 block mx-auto mb-1" />
+                    <span class="text-[10px] text-slate-400 block">Daily</span>
+                </label>
+                <label class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-center cursor-pointer block hover:border-emerald-500/50">
+                    <input type="radio" name="watchFrequency" value="Weekends" class="accent-emerald-500 block mx-auto mb-1" />
+                    <span class="text-[10px] text-slate-400 block">Weekends</span>
+                </label>
+                <label class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-center cursor-pointer block hover:border-emerald-500/50">
+                    <input type="radio" name="watchFrequency" value="Rarely" class="accent-emerald-500 block mx-auto mb-1" />
+                    <span class="text-[10px] text-slate-400 block">Rarely</span>
+                </label>
+            </div>
+        </div>
+
+        <div>
+            <label class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1">Describe specific tags or themes you follow</label>
+            <textarea name="systemInterests" rows="3" required placeholder="e.g., Christopher Nolan movies, time travel mechanics, dark psychological tropes..." class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+        </div>
+
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3 rounded-xl transition-all shadow-lg shadow-emerald-600/20 cursor-pointer">
+            <i class="fa-solid fa-paper-plane mr-1"></i> Save Parameters & Deploy Profile
+        </button>
+    </form>
+</div>

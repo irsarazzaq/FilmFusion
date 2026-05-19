@@ -1,0 +1,94 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Setup Profile - FilmFusion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+        background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(2, 6, 23, 0.9)), url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1920&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-2xl w-full bg-slate-900/40 backdrop-blur-xl border border-indigo-500/20 rounded-3xl p-8 shadow-2xl space-y-6 my-8">
+        <div class="text-center">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-indigo-600/20 text-indigo-400 mb-3 border border-indigo-500/30">
+                <i class="fa-solid fa-id-card text-xl"></i>
+            </div>
+            <h2 class="text-2xl font-black uppercase tracking-wider text-white">Complete Profile Matrix</h2>
+            <p class="text-xs text-slate-400 mt-1">Configure your deployment identity handles before initial system access.</p>
+        </div>
+
+        <form asp-controller="Account" asp-action="Questionnaire" method="post" class="space-y-5">
+            @Html.AntiForgeryToken()
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="text-[10px] text-indigo-400 font-bold uppercase tracking-wider block mb-2">1. Choose Public Username</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500"><i class="fa-solid fa-at text-xs"></i></span>
+                        <input type="text" name="username" required placeholder="e.g., cyber_fusion" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors" />
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[10px] text-indigo-400 font-bold uppercase tracking-wider block mb-2">2. System Age Authentication</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500"><i class="fa-solid fa-calendar-day text-xs"></i></span>
+                        <input type="number" name="age" required min="12" max="100" placeholder="e.g., 21" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors" />
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label class="text-[10px] text-indigo-400 font-bold uppercase tracking-wider block mb-2">3. Primary Interest Category</label>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <label class="relative flex flex-col items-center justify-center p-3 bg-slate-950/60 border border-slate-800 rounded-xl cursor-pointer hover:border-indigo-500/50 transition-all group text-center">
+                        <input type="radio" name="preferredGenre" value="Sci-Fi" checked class="absolute top-2 right-2 accent-indigo-500" />
+                        <i class="fa-solid fa-user-astronaut text-sm text-slate-500 group-hover:text-indigo-400 transition-colors mb-1"></i>
+                        <span class="text-[10px] font-bold text-white tracking-wide">Sci-Fi</span>
+                    </label>
+                    <label class="relative flex flex-col items-center justify-center p-3 bg-slate-950/60 border border-slate-800 rounded-xl cursor-pointer hover:border-indigo-500/50 transition-all group text-center">
+                        <input type="radio" name="preferredGenre" value="Action" class="absolute top-2 right-2 accent-indigo-500" />
+                        <i class="fa-solid fa-burst text-sm text-slate-500 group-hover:text-indigo-400 transition-colors mb-1"></i>
+                        <span class="text-[10px] font-bold text-white tracking-wide">Action</span>
+                    </label>
+                    <label class="relative flex flex-col items-center justify-center p-3 bg-slate-950/60 border border-slate-800 rounded-xl cursor-pointer hover:border-indigo-500/50 transition-all group text-center">
+                        <input type="radio" name="preferredGenre" value="Thriller" class="absolute top-2 right-2 accent-indigo-500" />
+                        <i class="fa-solid fa-mask text-sm text-slate-500 group-hover:text-indigo-400 transition-colors mb-1"></i>
+                        <span class="text-[10px] font-bold text-white tracking-wide">Thriller</span>
+                    </label>
+                    <label class="relative flex flex-col items-center justify-center p-3 bg-slate-950/60 border border-slate-800 rounded-xl cursor-pointer hover:border-indigo-500/50 transition-all group text-center">
+                        <input type="radio" name="preferredGenre" value="Romance" class="absolute top-2 right-2 accent-indigo-500" />
+                        <i class="fa-solid fa-heart text-sm text-slate-500 group-hover:text-indigo-400 transition-colors mb-1"></i>
+                        <span class="text-[10px] font-bold text-white tracking-wide">Romance</span>
+                    </label>
+                </div>
+            </div>
+
+            <div>
+                <label class="text-[10px] text-indigo-400 font-bold uppercase tracking-wider block mb-2">4. Core Bio Description (Optional)</label>
+                <div class="relative">
+                    <span class="absolute top-3 left-4 text-slate-500"><i class="fa-solid fa-pen-nib text-xs"></i></span>
+                    <textarea name="bio" rows="3" placeholder="Tell us about your cinematic taste metrics..." class="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors resize-none"></textarea>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-3.5 rounded-xl transition-all shadow-lg uppercase tracking-wider mt-2">
+                Save & Initialize Node Stream
+            </button>
+        </form>
+    </div>
+
+</body>
+</html>

@@ -2,10 +2,13 @@
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Enterprise Dashboard Console";
+    var databaseUsers = ViewBag.RegisteredUsers as List<FilmFusion.Models.User>;
 }
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <div class="min-h-screen bg-slate-950 text-white p-6 font-sans">
-    
+
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="mb-4 p-4 bg-emerald-950/40 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs font-mono flex items-center gap-2">
@@ -24,13 +27,20 @@
             <h1 class="text-lg font-black font-mono tracking-tight uppercase">FILMFUSION ENTERPRISE</h1>
             <p class="text-[10px] text-slate-500 font-mono tracking-wider">Node Management Interface v4.5 // Access: <span class="text-indigo-400">Root Admin</span></p>
         </div>
-        <div class="flex items-center gap-3">
-            <form asp-controller="Movies" asp-action="SeedDefaults" method="post">
+
+        <div class="flex flex-wrap items-center gap-3">
+            <a asp-controller="Home" asp-action="ExportUsersCSV" class="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-mono text-xs font-bold py-2 px-3 rounded-xl transition-all shadow-md">
+                <i class="fa-solid fa-file-csv text-purple-400 mr-1"></i> Export Users
+            </a>
+            <a asp-controller="Home" asp-action="ExportMoviesCSV" class="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-mono text-xs font-bold py-2 px-3 rounded-xl transition-all shadow-md">
+                <i class="fa-solid fa-download text-emerald-400 mr-1"></i> Export Movies
+            </a>
+            <form asp-controller="Movies" asp-action="SeedDefaults" method="post" class="inline">
                 <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-mono text-xs font-bold py-2 px-4 rounded-xl cursor-pointer shadow-md">
                     <i class="fa-solid fa-cube"></i> Seed Vector
                 </button>
             </form>
-            <form asp-controller="Movies" asp-action="WipeAll" method="post">
+            <form asp-controller="Movies" asp-action="WipeAll" method="post" class="inline">
                 <button type="submit" class="bg-rose-950/40 hover:bg-rose-900/30 border border-rose-900/40 text-rose-400 font-mono text-xs font-bold py-2 px-4 rounded-xl cursor-pointer">
                     <i class="fa-solid fa-trash-can"></i> Wipe All
                 </button>
@@ -38,10 +48,60 @@
         </div>
     </div>
 
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-slate-900/40 border border-slate-850 p-4 rounded-xl flex items-center justify-between">
+            <div>
+                <p class="text-[10px] font-mono text-slate-400 uppercase">Total Tracked Movies</p>
+                <h3 class="text-xl font-black font-mono text-white mt-0.5">@Model.Count() Nodes</h3>
+            </div>
+            <i class="fa-solid fa-clapperboard text-indigo-500 text-lg opacity-40"></i>
+        </div>
+        <div class="bg-slate-900/40 border border-slate-850 p-4 rounded-xl flex items-center justify-between">
+            <div>
+                <p class="text-[10px] font-mono text-slate-400 uppercase">Database Users Connected</p>
+                <h3 class="text-xl font-black font-mono text-purple-400 mt-0.5">@(databaseUsers?.Count ?? 0) Active</h3>
+            </div>
+            <i class="fa-solid fa-users-viewfinder text-purple-500 text-lg opacity-40"></i>
+        </div>
+        <div class="bg-slate-900/40 border border-slate-850 p-4 rounded-xl flex items-center justify-between">
+            <div>
+                <p class="text-[10px] font-mono text-slate-400 uppercase">Storage Engine Core</p>
+                <h3 class="text-xs font-bold text-emerald-400 mt-1 font-mono">PostgreSQL Connected</h3>
+            </div>
+            <i class="fa-solid fa-database text-emerald-500 text-lg opacity-40"></i>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="bg-slate-900/50 border border-slate-850 p-5 rounded-2xl">
+            <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 mb-4"><i class="fa-solid fa-chart-pie text-indigo-400 mr-2"></i>Database Storage Volumetrics</h3>
+            <div class="relative flex items-center justify-center max-h-[220px]">
+                <canvas id="adminPieChart"></canvas>
+            </div>
+        </div>
+        <div class="bg-slate-900/50 border border-slate-850 p-5 rounded-2xl">
+            <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 mb-4"><i class="fa-solid fa-chart-bar text-purple-400 mr-2"></i>System Resource Architecture</h3>
+            <div class="relative flex items-center justify-center max-h-[220px]">
+                <canvas id="adminBarChart"></canvas>
+            </div>
+        </div>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
+
         <div class="lg:col-span-4 space-y-6">
-            
+
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <h2 class="text-xs uppercase font-bold text-slate-400 tracking-wider font-mono mb-3"><i class="fa-solid fa-bars text-purple-400"></i> Management Terminal Links</h2>
+                <div class="flex flex-col gap-2">
+                    <a asp-controller="Home" asp-action="UsersControl" class="flex items-center gap-3 px-4 py-3 bg-slate-950 hover:bg-slate-900 border border-slate-850 hover:border-purple-500/40 text-slate-300 hover:text-purple-400 rounded-xl font-mono text-xs font-bold tracking-wide transition-all duration-200">
+                        <i class="fa-solid fa-users-gear text-purple-400"></i>
+                        <span>Users Control Panel</span>
+                        <span class="ml-auto text-[9px] bg-purple-950 text-purple-400 px-1.5 py-0.5 rounded border border-purple-900/40">Launch →</span>
+                    </a>
+                </div>
+            </div>
+
             <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl">
                 <h2 class="text-xs uppercase font-bold text-slate-400 tracking-wider font-mono mb-3"><i class="fa-solid fa-magnifying-glass text-indigo-400"></i> Cloud API Movie Probe</h2>
                 <form asp-controller="Movies" asp-action="ProbeMovie" method="post" class="flex gap-2 mb-2">
@@ -111,7 +171,7 @@
         <div class="lg:col-span-8">
             <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl">
                 <h2 class="text-xs uppercase font-bold text-slate-300 tracking-wider font-mono mb-4 pb-2 border-b border-slate-800"><i class="fa-solid fa-images text-indigo-400"></i> Active Storage Movie Catalog (Visual Layout)</h2>
-                
+
                 @if (!Model.Any())
                 {
                     <div class="py-20 text-center text-slate-600 font-mono text-xs border border-dashed border-slate-800 rounded-xl bg-slate-950/40">
@@ -123,13 +183,12 @@
                     <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 max-h-[680px] overflow-y-auto pr-1">
                         @foreach (var item in Model)
                         {
-                            <div class="bg-slate-950 border border-slate-850 rounded-xl overflow-hidden shadow-md hover:border-indigo-500/50 transition-all duration-300 group flex flex-col">
-                                
+                            <div id="movie-node-@item.Id" class="bg-slate-950 border border-slate-850 rounded-xl overflow-hidden shadow-md hover:border-indigo-500/50 transition-all duration-300 group flex flex-col relative">
                                 <div class="relative aspect-[2/3] w-full bg-slate-900 overflow-hidden">
                                     <img src="@(string.IsNullOrEmpty(item.PosterUrl) ? "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=500" : item.PosterUrl)"
                                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                          alt="Wallpaper Artwork" />
-                                    
+
                                     <div class="absolute top-2 left-2 flex flex-col gap-1">
                                         <span class="text-[8px] font-mono font-bold bg-slate-950/80 text-indigo-400 border border-slate-800 px-1 py-0.5 rounded backdrop-blur-sm uppercase">
                                             @item.Genre
@@ -138,21 +197,23 @@
                                             @item.TargetAgeLimit+ Sec
                                         </span>
                                     </div>
-                                    
+
+                                    <button onclick="purgeMovieFromSystem('@item.Id', '@item.Title')" class="absolute top-2 right-2 w-6 h-6 bg-rose-950/90 hover:bg-rose-600 text-rose-400 hover:text-white rounded-lg border border-rose-900/40 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 shadow-lg cursor-pointer z-20" title="Purge Node From Database">
+                                        <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                    </button>
+
                                     <div class="absolute bottom-2 right-2">
                                         <span class="text-[8px] font-mono bg-slate-950/80 text-slate-400 px-1.5 py-0.5 rounded border border-slate-850">
                                             @item.Duration
                                         </span>
                                     </div>
                                 </div>
-                                
                                 <div class="p-3 space-y-1 bg-slate-900/40 border-t border-slate-900 flex-grow flex flex-col justify-between">
                                     <div>
                                         <h3 class="text-xs font-bold text-white tracking-tight font-mono truncate" title="@item.Title">@item.Title</h3>
                                         <p class="text-[10px] text-slate-400 line-clamp-2 leading-normal font-sans">@item.Description</p>
                                     </div>
                                 </div>
-                                
                             </div>
                         }
                     </div>
@@ -162,3 +223,94 @@
 
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    // 1. DATABASE DISTRIBUTION PIE CHART
+    var ctxPie = document.getElementById('adminPieChart').getContext('2d');
+    new Chart(ctxPie, {
+    type: 'pie',
+    data: {
+    labels: ['Total Asset Movies', 'Active Users'],
+    datasets: [{
+    data: [@ViewBag.TotalMoviesCount, @ViewBag.TotalUsersCount],
+    backgroundColor: ['#4f46e5', '#a855f7'],
+    borderColor: '#0f172a',
+    borderWidth: 2
+    }]
+    },
+    options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+    legend: {
+    position: 'bottom',
+    labels: { color: '#94a3b8', font: { family: 'monospace', size: 10 } }
+    }
+    }
+    }
+    });
+
+    // 2. RESOURCE ANALYTICS BAR CHART
+    var ctxBar = document.getElementById('adminBarChart').getContext('2d');
+    new Chart(ctxBar, {
+    type: 'bar',
+    data: {
+    labels: ['High Priority Core', 'Secondary Nodes'],
+    datasets: [{
+    label: 'Cluster Registry',
+    data: [@ViewBag.HighRatedMovies, @ViewBag.AvgRatedMovies],
+    backgroundColor: ['#10b981', '#f59e0b'],
+    borderRadius: 6
+    }]
+    },
+    options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+    y: { beginAtZero: true, grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 9 } } },
+    x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 } } }
+    },
+    plugins: {
+    legend: { display: false }
+    }
+    }
+    });
+    });
+
+    // --- NEW ENGINE: FIXED ROUTE FOR AJAX PURGE LOGIC ---
+    function purgeMovieFromSystem(movieId, movieTitle) {
+    if (!confirm(`Are you sure you want to permanently delete "${movieTitle}" from PostgreSQL backend nodes?`)) {
+    return;
+    }
+
+    // URL path changed from '/Movies/DeleteMovieAsync' to '/Home/DeleteMovieAsync'
+    fetch('/Home/DeleteMovieAsync', {
+    method: 'POST',
+    headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: `id=${encodeURIComponent(movieId)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+    if (data.success) {
+    const targetCard = document.getElementById(`movie-node-${movieId}`);
+    if (targetCard) {
+    targetCard.style.transition = 'all 0.3s ease';
+    targetCard.style.opacity = '0';
+    targetCard.style.transform = 'scale(0.9)';
+    setTimeout(() => {
+    targetCard.remove();
+    }, 300);
+    }
+    } else {
+    alert("Error inside core pipeline: " + data.message);
+    }
+    })
+    .catch(error => {
+    console.error("Pipeline breakdown:", error);
+    alert("Failed to communicate with database cluster.");
+    });
+    }
+</script>

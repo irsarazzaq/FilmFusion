@@ -1,0 +1,57 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Admin Terminal - FilmFusion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+        background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(2, 6, 23, 0.85)), url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1920&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-slate-950/75 backdrop-blur-xl border border-slate-800/80 rounded-3xl p-8 shadow-2xl space-y-6">
+        <div class="text-center">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-red-600/20 text-red-400 mb-3 border border-red-500/30">
+                <i class="fa-solid fa-user-gear text-xl"></i>
+            </div>
+            <h2 class="text-2xl font-black uppercase tracking-wider text-white">Admin Console</h2>
+            <p class="text-xs text-slate-400 mt-1">Enter system root identifiers to connect.</p>
+        </div>
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="p-3 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs rounded-xl text-center">
+                <i class="fa-solid fa-circle-exclamation mr-1"></i> @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <form asp-controller="Account" asp-action="AdminLogin" method="post" autocomplete="off" class="space-y-4">
+            @Html.AntiForgeryToken()
+            <div>
+                <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-2">System Username</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500"><i class="fa-solid fa-terminal text-xs"></i></span>
+                    <input type="text" name="email" required autocomplete="new-password" placeholder="Enter admin username" class="w-full bg-slate-900/90 border border-slate-800 rounded-xl pl-10 pr-4 py-3.5 text-xs text-white focus:outline-none focus:border-red-500 transition-colors shadow-inner" />
+                </div>
+            </div>
+            <div>
+                <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-2">Console Password</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500"><i class="fa-solid fa-key text-xs"></i></span>
+                    <input type="password" name="password" required autocomplete="new-password" placeholder="••••••••" class="w-full bg-slate-900/90 border border-slate-800 rounded-xl pl-10 pr-4 py-3.5 text-xs text-white focus:outline-none focus:border-red-500 transition-colors shadow-inner" />
+                </div>
+            </div>
+            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-3.5 rounded-xl transition-all shadow-lg uppercase tracking-wider mt-2">Authorize Terminal</button>
+        </form>
+    </div>
+</body>
+</html>

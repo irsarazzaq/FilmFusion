@@ -2,49 +2,70 @@
     Layout = null;
 }
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-900">
+<html lang="en" class="h-full bg-slate-950">
 <head>
     <meta charset="utf-8" />
-    <title>Select Operations Identity</title>
+    <title>Member Gateway - FilmFusion</title>
     <script src="https://unpkg.com/@@tailwindcss/browser@@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
     <style>
-        .role-backdrop {
-        background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=1920&auto=format&fit=crop');
-        background-size: cover;
-        background-position: center;
+        /* Modern Cinematic Animations */
+        @@keyframes subtle-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.15), inset 0 0 12px rgba(168, 85, 247, 0.05); }
+            50% { box-shadow: 0 0 35px rgba(129, 140, 248, 0.35), inset 0 0 20px rgba(129, 140, 248, 0.15); border-color: rgba(129, 140, 248, 0.4); }
         }
+
+        @@keyframes pulse-text {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); text-shadow: 0 0 15px rgba(168, 85, 247, 0.5); }
+        }
+
+        @@keyframes entrance-fade {
+            0% { opacity: 0; transform: scale(0.96) translateY(10px); filter: blur(4px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+        }
+
+        .animate-gateway-box { animation: entrance-fade 1s cubic-bezier(0.16, 1, 0.3, 1) forwards, subtle-glow 6s ease-in-out infinite; }
+        .animate-pulse-text { animation: pulse-text 3s ease-in-out infinite; }
     </style>
 </head>
-<body class="h-full role-backdrop text-slate-200 flex items-center justify-center p-6">
+<body class="h-full relative text-slate-200 flex items-center justify-center p-6 overflow-hidden select-none">
 
-    <div class="max-w-3xl w-full grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="absolute inset-0 w-full h-full object-cover z-0 overflow-hidden pointer-events-none">
+        <video autoplay loop muted playsinline class="w-full h-full object-cover scale-[1.02]">
+            <source src="~/videos/bg-cinema.mp4" type="video/mp4">
+        </video>
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-slate-950/30 to-slate-950/45 z-10"></div>
+    </div>
+
+    <div class="max-w-md w-full relative z-20 animate-gateway-box bg-slate-900/65 border border-slate-800/80 rounded-[2.5rem] p-8 text-center backdrop-blur-xl shadow-[0_25px_60px_rgba(0,0,0,0.7)]">
         
-        <a href="@Url.Action("Login", "Account")" class="group relative rounded-2xl p-6 bg-slate-800/80 border border-slate-700/50 hover:border-indigo-500 hover:bg-slate-800 transition-all shadow-xl flex flex-col justify-between min-h-[260px] backdrop-blur-sm">
-            <div>
-                <div class="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center text-indigo-400 text-xl group-hover:bg-indigo-500 group-hover:text-white transition-all mb-4">
-                    <i class="fa-solid fa-user-shield"></i>
-                </div>
-                <h2 class="text-xl font-bold text-white tracking-tight">System Administrator</h2>
-                <p class="text-xs text-slate-300 mt-2 leading-relaxed">Manage system databases, customize metadata structures, and access core operational master logs.</p>
+        <div class="relative w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+            <div class="absolute inset-0 rounded-2xl bg-purple-500/20 animate-ping opacity-75"></div>
+            <div class="relative w-16 h-16 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-xl shadow-purple-500/20 border border-purple-400/20">
+                <i class="fa-solid fa-users text-white text-2xl"></i>
             </div>
-            <span class="text-xs font-semibold text-indigo-400 inline-flex items-center gap-1.5 mt-4">
-                Access Admin Node <i class="fa-solid fa-chevron-right text-[10px]"></i>
-            </span>
+        </div>
+
+        <h2 class="text-3xl font-black text-white tracking-tight uppercase animate-pulse-text">
+            Member Portal
+        </h2>
+        <div class="w-12 h-[3px] bg-gradient-to-r from-purple-500 to-indigo-500 mx-auto my-4 rounded-full"></div>
+        
+        <p class="text-sm text-slate-300 font-light leading-relaxed max-w-sm mx-auto mb-8">
+            Welcome back to FilmFusion. To experience live data modeling, manage metadata libraries, and configure settings, you need to verify your account session.
+        </p>
+
+        <a href="@Url.Action("UserLogin", "Account")" class="group relative w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold tracking-wider rounded-xl transition-all duration-300 shadow-lg shadow-purple-900/40 hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.99]">
+            <span>CONTINUE TO LOGIN</span>
+            <i class="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition-transform duration-200"></i>
         </a>
 
-        <a href="@Url.Action("Register", "Account")" class="group relative rounded-2xl p-6 bg-slate-800/80 border border-slate-700/50 hover:border-purple-500 hover:bg-slate-800 transition-all shadow-xl flex flex-col justify-between min-h-[260px] backdrop-blur-sm">
-            <div>
-                <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center text-purple-400 text-xl group-hover:bg-purple-500 group-hover:text-white transition-all mb-4">
-                    <i class="fa-solid fa-users"></i>
-                </div>
-                <h2 class="text-xl font-bold text-white tracking-tight">Standard Member</h2>
-                <p class="text-xs text-slate-300 mt-2 leading-relaxed">Personalize watch preferences, execute system search queries, and calibrate suggestions engine.</p>
-            </div>
-            <span class="text-xs font-semibold text-purple-400 inline-flex items-center gap-1.5 mt-4">
-                Launch Portal Engine <i class="fa-solid fa-chevron-right text-[10px]"></i>
-            </span>
-        </a>
+        <div class="mt-6 flex items-center justify-center gap-1.5 text-[11px] font-mono tracking-wide text-slate-400">
+            <i class="fa-solid fa-lock text-purple-400/80"></i>
+            <span>Secure Streaming Client Handshake</span>
+        </div>
 
     </div>
 

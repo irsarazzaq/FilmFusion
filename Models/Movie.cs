@@ -17,6 +17,9 @@ namespace FilmFusion.Models
         public string Duration { get; set; } = string.Empty;
 
         [Required]
+        public string? VideoUrl { get; set; } // Movie play karne ke liye streaming link node
+
+        [Required]
         public string PosterUrl { get; set; } = string.Empty;
 
         // Smart Age Gate Fields

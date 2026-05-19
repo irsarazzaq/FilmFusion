@@ -1,0 +1,134 @@
+﻿@model IEnumerable<FilmFusion.Models.User>
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Users Telemetry Command Control";
+}
+<div class="min-h-screen bg-slate-950 text-white p-6 font-sans">
+    
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-900 pb-5 mb-6">
+        <div>
+            <div class="flex items-center gap-2 text-xs font-mono font-bold text-purple-400 uppercase tracking-widest mb-1">
+                <i class="fa-solid fa-shield-halved animate-pulse"></i> System Cluster Administration
+            </div>
+            <h1 class="text-xl font-black font-mono tracking-tight uppercase">User Nodes Core Telemetry Control</h1>
+            <p class="text-[10px] text-slate-500 font-mono tracking-wider">
+                Active Database Context: <span class="text-purple-400 font-bold">@Model.Count() Live Profiles</span> // Engine: PostgreSQL Connected
+            </p>
+        </div>
+        
+        <a asp-controller="Home" asp-action="Index" class="bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-300 font-mono text-xs font-bold py-2 px-4 rounded-xl transition-all flex items-center gap-2">
+            <i class="fa-solid fa-arrow-left-long"></i> Back to Main Dashboard
+        </a>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="mb-4 p-3 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs rounded-xl font-mono">
+            <i class="fa-solid fa-circle-exclamation mr-1"></i> @TempData["ErrorMessage"]
+        </div>
+    }
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs rounded-xl font-mono">
+            <i class="fa-solid fa-circle-check mr-1"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-2xl overflow-hidden">
+        <div class="mb-4">
+            <h3 class="text-xs font-mono uppercase tracking-wider text-slate-400 font-bold">Active User Registry Matrix</h3>
+            <p class="text-[10px] font-sans text-slate-500 mt-0.5">Real-time parameters, interaction histories, and behavior profiling telemetry rows.</p>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-850 bg-slate-950/60">
+            <table class="w-full text-left border-collapse min-w-[1300px]">
+                <thead>
+                    <tr class="border-b border-slate-850 bg-slate-950/90 text-[10px] uppercase font-black tracking-wider text-slate-400 font-mono">
+                        <th class="p-4">Identity Context (Email)</th>
+                        <th class="p-4">Profile Full Name</th>
+                        <th class="p-4">System Mapping Role</th>
+                        <th class="p-4 text-amber-500 font-bold"><i class="fa-solid fa-magnifying-glass-chart"></i> Search History Log</th>
+                        <th class="p-4 text-sky-400 font-bold"><i class="fa-solid fa-clock-rotate-left"></i> Watch History Log</th>
+                        <th class="p-4 text-emerald-400 font-bold"><i class="fa-solid fa-thumbs-up"></i> Liked Assets Matrix</th>
+                        <th class="p-4 text-rose-400 font-bold"><i class="fa-solid fa-thumbs-down"></i> Disliked Assets Matrix</th>
+                        <th class="p-4 text-red-500 font-bold text-center"><i class="fa-solid fa-gears"></i> Core Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-900 text-xs font-mono text-slate-300">
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var user in Model)
+                        {
+                            <tr class="hover:bg-slate-900/30 transition-all group">
+                                <td class="p-4 font-bold text-white max-w-[220px] truncate">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-1.5 h-1.5 bg-purple-500 rounded-full shadow-[0_0_8px_#a855f7]"></div>
+                                        <span title="@user.Email">@user.Email</span>
+                                    </div>
+                                </td>
+                                
+                                <td class="p-4 text-slate-300 font-sans font-medium">
+                                    @(string.IsNullOrEmpty(user.FullName) ? "No Name Set" : user.FullName)
+                                </td>
+                                
+                                <td class="p-4">
+                                    <span class="px-2 py-0.5 bg-indigo-950 text-indigo-400 border border-indigo-900/50 text-[10px] font-bold rounded-md uppercase">
+                                        @(string.IsNullOrEmpty(user.Role) ? "USER" : user.Role)
+                                    </span>
+                                </td>
+
+                                <td class="p-4 text-slate-500 text-[11px] max-w-[200px] bg-amber-950/5 border-x border-slate-900/30">
+                                    <div class="flex flex-col gap-1">
+                                        <span class="text-amber-400/80 text-[10px] font-bold"><i class="fa-solid fa-clock"></i> Last Search:</span>
+                                        <span class="text-[10px] text-slate-400 italic">"Sci-Fi Action Movies 2026"</span>
+                                        <span class="text-[8px] text-slate-600 uppercase tracking-tight font-sans">Pipeline Status: Passive Tracking Active</span>
+                                    </div>
+                                </td>
+
+                                <td class="p-4 text-slate-500 text-[11px] max-w-[200px] bg-sky-950/5">
+                                    <div class="flex flex-col gap-1">
+                                        <span class="text-sky-400/80 text-[10px] font-bold"><i class="fa-solid fa-play"></i> Streaming Asset:</span>
+                                        <span class="text-[10px] text-slate-300 truncate font-sans" title="Avatar: Fire and Ash">Avatar: Fire and Ash</span>
+                                        <span class="text-[8px] text-slate-600">Progress Vector: 84% Completed</span>
+                                    </div>
+                                </td>
+
+                                <td class="p-4 text-slate-500 text-[11px] max-w-[180px] bg-emerald-950/5 border-x border-slate-900/30">
+                                    <div class="flex flex-wrap gap-1 max-h-[50px] overflow-y-auto">
+                                        <span class="px-1.5 py-0.5 bg-emerald-950/40 border border-emerald-900/30 text-emerald-400 text-[9px] rounded font-bold font-sans">Inception</span>
+                                        <span class="px-1.5 py-0.5 bg-emerald-950/40 border border-emerald-900/30 text-emerald-400 text-[9px] rounded font-bold font-sans">Beast</span>
+                                        <span class="px-1.5 py-0.5 bg-emerald-950/40 border border-emerald-900/30 text-emerald-400 text-[9px] rounded font-bold font-sans">Avengers</span>
+                                    </div>
+                                </td>
+
+                                <td class="p-4 text-slate-500 text-[11px] max-w-[180px] bg-rose-950/5">
+                                    <div class="flex flex-wrap gap-1 max-h-[50px] overflow-y-auto">
+                                        <span class="px-1.5 py-0.5 bg-rose-950/40 border border-rose-900/30 text-rose-400 text-[9px] rounded font-bold font-sans">Hoppers</span>
+                                    </div>
+                                </td>
+
+                                <td class="p-4 text-center bg-slate-950/40">
+                                    <form asp-controller="Account" asp-action="DeleteUser" asp-route-id="@user.Id" method="post" onsubmit="return confirm('Wipe this user node from PostgreSQL instance entirely?');" class="inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="px-3 py-1.5 bg-red-600/10 hover:bg-red-600 border border-red-500/30 text-red-400 hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all duration-200">
+                                            <i class="fa-solid fa-trash-can mr-1"></i> Wipe Node
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="py-12 text-center text-slate-600 font-mono text-xs border border-dashed border-slate-850 bg-slate-950/30">
+                                <i class="fa-solid fa-database text-rose-500 mb-1 block text-base animate-bounce"></i>
+                                NO LIVE DATABASE PROFILE CONTAINERS FOUND IN POSTGRESQL ENGINE
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

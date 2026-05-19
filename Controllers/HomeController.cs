@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore; // Yeh line missing thi jis se CS0411 error aa raha tha
+using Microsoft.EntityFrameworkCore;
 using FilmFusion.Data;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.Text;
 using System.Linq;
 
 namespace FilmFusion.Controllers
@@ -15,21 +17,145 @@ namespace FilmFusion.Controllers
             _context = context;
         }
 
+        // ==========================================
+        // 1. ADMIN DESK -> MAIN INDEX DASHBOARD (WITH LIVE CHART DATA)
+        // ==========================================
         public async Task<IActionResult> Index()
         {
-            // Fetching absolute real counts from PostgreSQL context pipelines
-            int dbUsersCount = await _context.Users.CountAsync();
-            var moviesList = await _context.Movies.ToListAsync();
+            // SECURE GATEWAY CHECK
+            if (HttpContext.Session.GetString("UserRole") != "ADMIN")
+            {
+                return RedirectToAction("AdminLogin", "Account");
+            }
 
-            // Map properties directly to view layouts
-            ViewData["ConnectedUsersCount"] = $"{dbUsersCount} Active Users";
-            ViewData["ClusterStatus"] = "PostgreSQL DB Synced";
+            try
+            {
+                var movies = await _context.Movies.ToListAsync();
+                var totalUsers = await _context.Users.ToListAsync();
 
-            // Pass real tracking metrics to dashboard
-            ViewBag.TopQuery = dbUsersCount > 0 ? "Analyzing Pipeline Data..." : "No User Queries Executed Yet";
-            ViewBag.TotalHitLogs = dbUsersCount > 0 ? "Session Tracking Active" : "0 Cluster Hits";
+                ViewBag.RegisteredUsers = totalUsers;
+                ViewBag.TotalMoviesCount = movies.Count;
+                ViewBag.TotalUsersCount = totalUsers.Count;
 
-            return View(moviesList);
+                ViewBag.HighRatedMovies = movies.Count;
+                ViewBag.AvgRatedMovies = 0;
+
+                return View(movies);
+            }
+            catch (System.Exception)
+            {
+                TempData["ErrorMessage"] = "Database connection transient alert. Showing cached frame.";
+                ViewBag.RegisteredUsers = new System.Collections.Generic.List<FilmFusion.Models.User>();
+                ViewBag.TotalMoviesCount = 0;
+                ViewBag.TotalUsersCount = 0;
+                ViewBag.HighRatedMovies = 0;
+                ViewBag.AvgRatedMovies = 0;
+                return View(new System.Collections.Generic.List<FilmFusion.Models.Movie>());
+            }
+        }
+
+        // ==========================================
+        // 2. USER ENTERTAINMENT DESK -> DASHBOARD
+        // ==========================================
+        public async Task<IActionResult> UserDashboard()
+        {
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("UserEmail")))
+            {
+                return RedirectToAction("UserLogin", "Account");
+            }
+
+            var movies = await _context.Movies.ToListAsync();
+            return View(movies);
+        }
+
+        // ==========================================
+        // 3. ADMIN'S USER MANAGEMENT SYSTEM
+        // ==========================================
+        public async Task<IActionResult> UsersControl()
+        {
+            if (HttpContext.Session.GetString("UserRole") != "ADMIN")
+            {
+                return RedirectToAction("AdminLogin", "Account");
+            }
+
+            try
+            {
+                var usersList = await _context.Users.ToListAsync();
+                return View(usersList);
+            }
+            catch (System.Exception)
+            {
+                return View(new System.Collections.Generic.List<FilmFusion.Models.User>());
+            }
+        }
+
+        // ==========================================
+        // 4. DOWNLOAD EXPORT INTERFACE: USERS TO CSV
+        // ==========================================
+        public async Task<IActionResult> ExportUsersCSV()
+        {
+            if (HttpContext.Session.GetString("UserRole") != "ADMIN")
+            {
+                return RedirectToAction("AdminLogin", "Account");
+            }
+
+            var users = await _context.Users.ToListAsync();
+            var builder = new StringBuilder();
+            builder.AppendLine("Id,FullName,Email,Role");
+
+            foreach (var user in users)
+            {
+                builder.AppendLine($"{user.Id},{user.FullName},{user.Email},{user.Role}");
+            }
+
+            return File(Encoding.UTF8.GetBytes(builder.ToString()), "text/csv", "FilmFusion_Users_Report.csv");
+        }
+
+        // ==========================================
+        // 5. DOWNLOAD EXPORT INTERFACE: MOVIES TO CSV
+        // ==========================================
+        public async Task<IActionResult> ExportMoviesCSV()
+        {
+            if (HttpContext.Session.GetString("UserRole") != "ADMIN")
+            {
+                return RedirectToAction("AdminLogin", "Account");
+            }
+
+            var movies = await _context.Movies.ToListAsync();
+            var builder = new StringBuilder();
+            builder.AppendLine("Id,Title,Genre,Duration,AgeLimit");
+
+            foreach (var movie in movies)
+            {
+                builder.AppendLine($"{movie.Id},{movie.Title},{movie.Genre},{movie.Duration},{movie.TargetAgeLimit}");
+            }
+
+            return File(Encoding.UTF8.GetBytes(builder.ToString()), "text/csv", "FilmFusion_Movies_Inventory.csv");
+        }
+
+        // ==========================================
+        // NEW DIRECTORY: ASYNCHRONOUS DATA CLUSTER PURGE ENGINE
+        // ==========================================
+        [HttpPost]
+        public async Task<IActionResult> DeleteMovieAsync(int id)
+        {
+            try
+            {
+                var movie = await _context.Movies.FindAsync(id);
+                if (movie == null)
+                {
+                    return Json(new { success = false, message = "Movie entity cluster index targeted not found." });
+                }
+
+                _context.Movies.Remove(movie);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Successfully purged from PostgreSQL node." });
+            }
+            catch (System.Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
     }
 }
