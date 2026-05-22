@@ -246,9 +246,7 @@ namespace FilmFusion.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // ====================================================================
-        // 5. NEW LOGIC: FETCH SINGLE MOVIE DETAILS BY ID (FOR MODALS/PREVIEWS)
-        // ====================================================================
+        
         [HttpGet]
         public async Task<IActionResult> GetMovieById(int id)
         {
