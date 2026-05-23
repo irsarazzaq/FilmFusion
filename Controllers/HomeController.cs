@@ -40,16 +40,22 @@ namespace FilmFusion.Controllers
                 ViewBag.HighRatedMovies = movies.Count;
                 ViewBag.AvgRatedMovies = 0;
 
+                // TRENDING COUNT FIX
+                ViewBag.TrendingCount = movies.Count(m => m.IsTrending);
+
                 return View(movies);
             }
             catch (System.Exception)
             {
                 TempData["ErrorMessage"] = "Database connection transient alert. Showing cached frame.";
+
                 ViewBag.RegisteredUsers = new System.Collections.Generic.List<FilmFusion.Models.User>();
                 ViewBag.TotalMoviesCount = 0;
                 ViewBag.TotalUsersCount = 0;
                 ViewBag.HighRatedMovies = 0;
                 ViewBag.AvgRatedMovies = 0;
+                ViewBag.TrendingCount = 0;
+
                 return View(new System.Collections.Generic.List<FilmFusion.Models.Movie>());
             }
         }
@@ -100,15 +106,26 @@ namespace FilmFusion.Controllers
             }
 
             var users = await _context.Users.ToListAsync();
+
             var builder = new StringBuilder();
+
             builder.AppendLine("Id,FullName,Email,Role");
 
             foreach (var user in users)
             {
-                builder.AppendLine($"{user.Id},{user.FullName},{user.Email},{user.Role}");
+                builder.AppendLine(
+                    $"{EscapeCSV(user.Id.ToString())}," +
+                    $"{EscapeCSV(user.FullName)}," +
+                    $"{EscapeCSV(user.Email)}," +
+                    $"{EscapeCSV(user.Role)}"
+                );
             }
 
-            return File(Encoding.UTF8.GetBytes(builder.ToString()), "text/csv", "FilmFusion_Users_Report.csv");
+            return File(
+                Encoding.UTF8.GetBytes(builder.ToString()),
+                "text/csv",
+                "FilmFusion_Users_Report.csv"
+            );
         }
 
         // ==========================================
@@ -122,19 +139,46 @@ namespace FilmFusion.Controllers
             }
 
             var movies = await _context.Movies.ToListAsync();
+
             var builder = new StringBuilder();
-            builder.AppendLine("Id,Title,Genre,Duration,AgeLimit");
+
+            builder.AppendLine("Id,Title,Genre,Duration,AgeLimit,Trending,Rating");
 
             foreach (var movie in movies)
             {
-                builder.AppendLine($"{movie.Id},{movie.Title},{movie.Genre},{movie.Duration},{movie.TargetAgeLimit}");
+                builder.AppendLine(
+                    $"{EscapeCSV(movie.Id.ToString())}," +
+                    $"{EscapeCSV(movie.Title)}," +
+                    $"{EscapeCSV(movie.Genre)}," +
+                    $"{EscapeCSV(movie.Duration)}," +
+                    $"{EscapeCSV(movie.TargetAgeLimit.ToString())}," +
+                    $"{EscapeCSV(movie.IsTrending.ToString())}," +
+                    $"{EscapeCSV(movie.TmdbRating.ToString())}"
+                );
             }
 
-            return File(Encoding.UTF8.GetBytes(builder.ToString()), "text/csv", "FilmFusion_Movies_Inventory.csv");
+            return File(
+                Encoding.UTF8.GetBytes(builder.ToString()),
+                "text/csv",
+                "FilmFusion_Movies_Inventory.csv"
+            );
         }
 
         // ==========================================
-        // NEW DIRECTORY: ASYNCHRONOUS DATA CLUSTER PURGE ENGINE
+        // 6. SAFE CSV FORMATTER
+        // ==========================================
+        private string EscapeCSV(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return "";
+
+            value = value.Replace("\"", "\"\"");
+
+            return $"\"{value}\"";
+        }
+
+        // ==========================================
+        // 7. NEW DIRECTORY: ASYNCHRONOUS DATA CLUSTER PURGE ENGINE
         // ==========================================
         [HttpPost]
         public async Task<IActionResult> DeleteMovieAsync(int id)
@@ -142,19 +186,33 @@ namespace FilmFusion.Controllers
             try
             {
                 var movie = await _context.Movies.FindAsync(id);
+
                 if (movie == null)
                 {
-                    return Json(new { success = false, message = "Movie entity cluster index targeted not found." });
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Movie entity cluster index targeted not found."
+                    });
                 }
 
                 _context.Movies.Remove(movie);
+
                 await _context.SaveChangesAsync();
 
-                return Json(new { success = true, message = "Successfully purged from PostgreSQL node." });
+                return Json(new
+                {
+                    success = true,
+                    message = "Successfully purged from PostgreSQL node."
+                });
             }
             catch (System.Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
             }
         }
     }

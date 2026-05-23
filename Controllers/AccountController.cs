@@ -12,6 +12,8 @@ using System.Collections.Generic;
 
 namespace FilmFusion.Controllers
 {
+
+
     public class AccountController : Controller
     {
         private readonly ApplicationDbContext _context;

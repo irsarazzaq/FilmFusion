@@ -517,7 +517,21 @@
 
     <script>
 
+        // =========================
+        // CURRENT USER KEY
+        // =========================
+
+        const currentUser =
+        "@userName".replace(/\s+/g, "_").toLowerCase();
+
+        function getUserStorageKey(key) {
+
+        return `${currentUser}_${key}`;
+        }
+
+        // =========================
         // TOAST
+        // =========================
 
         function toast(message) {
 
@@ -541,7 +555,9 @@
         }, 3000);
         }
 
+        // =========================
         // NOTIFICATIONS
+        // =========================
 
         function toggleNotifications() {
 
@@ -550,7 +566,9 @@
         .classList.toggle('hidden');
         }
 
+        // =========================
         // MOVIE TRAILERS
+        // =========================
 
         const movieTrailers = {
 
@@ -582,10 +600,15 @@
         "https://www.youtube.com/embed/w-XO4XiRop0?autoplay=1",
 
         "Fast":
-        "https://www.youtube.com/embed/FUK2kdPsBws?autoplay=1"
+        "https://www.youtube.com/embed/FUK2kdPsBws?autoplay=1",
+
+        "Alita":
+        "https://www.youtube.com/embed/w7pYhpJaJW8?autoplay=1"
         };
 
+        // =========================
         // PLAY MOVIE
+        // =========================
 
         function playMovieInline(title) {
 
@@ -613,6 +636,8 @@
         document.getElementById('video-modal')
         .classList.add('flex');
 
+        document.body.style.overflow = "hidden";
+
         loadComments(title);
         }
 
@@ -625,9 +650,13 @@
         .classList.add('hidden');
 
         document.getElementById('movie-frame').src = "";
+
+        document.body.style.overflow = "auto";
         }
 
-        // PROFILE
+        // =========================
+        // PROFILE MODAL
+        // =========================
 
         function openProfileModal() {
 
@@ -637,14 +666,16 @@
         document.getElementById('profile-modal')
         .classList.add('flex');
 
+        document.body.style.overflow = "hidden";
+
         document.getElementById('bio-input').value =
-        localStorage.getItem('bio') || '';
+        localStorage.getItem(getUserStorageKey('bio')) || '';
 
         document.getElementById('interest-input').value =
-        localStorage.getItem('interests') || '';
+        localStorage.getItem(getUserStorageKey('interests')) || '';
 
         document.getElementById('username-input').value =
-        localStorage.getItem('username') || '@userName';
+        localStorage.getItem(getUserStorageKey('username')) || '@userName';
         }
 
         function closeProfileModal() {
@@ -654,9 +685,13 @@
 
         document.getElementById('profile-modal')
         .classList.add('hidden');
+
+        document.body.style.overflow = "auto";
         }
 
-        // IMAGE PREVIEW
+        // =========================
+        // PROFILE IMAGE
+        // =========================
 
         function previewProfile(event) {
 
@@ -671,7 +706,7 @@
         reader.result;
 
         localStorage.setItem(
-        'profile-image',
+        getUserStorageKey('profile-image'),
         reader.result
         );
         };
@@ -679,7 +714,9 @@
         reader.readAsDataURL(event.target.files[0]);
         }
 
+        // =========================
         // SAVE PROFILE
+        // =========================
 
         function saveProfile() {
 
@@ -692,9 +729,20 @@
         const interests =
         document.getElementById('interest-input').value;
 
-        localStorage.setItem('username', username);
-        localStorage.setItem('bio', bio);
-        localStorage.setItem('interests', interests);
+        localStorage.setItem(
+        getUserStorageKey('username'),
+        username
+        );
+
+        localStorage.setItem(
+        getUserStorageKey('bio'),
+        bio
+        );
+
+        localStorage.setItem(
+        getUserStorageKey('interests'),
+        interests
+        );
 
         document.getElementById('username-display').innerText =
         username;
@@ -702,15 +750,21 @@
         toast("PROFILE SAVED SUCCESSFULLY");
         }
 
+        // =========================
         // LOAD PROFILE
+        // =========================
 
         window.addEventListener('load', () => {
 
         const image =
-        localStorage.getItem('profile-image');
+        localStorage.getItem(
+        getUserStorageKey('profile-image')
+        );
 
         const username =
-        localStorage.getItem('username');
+        localStorage.getItem(
+        getUserStorageKey('username')
+        );
 
         if (image) {
 
@@ -728,7 +782,9 @@
         }
         });
 
+        // =========================
         // COMMENTS
+        // =========================
 
         let currentMovie = "";
 
@@ -743,17 +799,28 @@
         if (!text) return;
 
         let allComments =
-        JSON.parse(localStorage.getItem('movie-comments') || '{}');
+        JSON.parse(
+        localStorage.getItem(
+        getUserStorageKey('movie-comments')
+        ) || '{}');
 
         if (!allComments[currentMovie]) {
 
         allComments[currentMovie] = [];
         }
 
-        allComments[currentMovie].push(text);
+        allComments[currentMovie].push({
+
+        user:
+        localStorage.getItem(
+        getUserStorageKey('username')
+        ) || "@userName",
+
+        text: text
+        });
 
         localStorage.setItem(
-        'movie-comments',
+        getUserStorageKey('movie-comments'),
         JSON.stringify(allComments)
         );
 
@@ -772,7 +839,10 @@
         container.innerHTML = '';
 
         let allComments =
-        JSON.parse(localStorage.getItem('movie-comments') || '{}');
+        JSON.parse(
+        localStorage.getItem(
+        getUserStorageKey('movie-comments')
+        ) || '{}');
 
         let comments =
         allComments[movieTitle] || [];
@@ -780,8 +850,25 @@
         comments.forEach(comment => {
 
         container.innerHTML += `
-        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-slate-300">
-        ${comment}
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+
+        <div class="flex items-center gap-2 mb-2">
+
+        <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-xs font-bold">
+        ${comment.user.charAt(0).toUpperCase()}
+        </div>
+
+        <span class="text-xs uppercase tracking-widest text-purple-400 font-bold">
+        ${comment.user}
+        </span>
+
+        </div>
+
+        <p class="text-xs text-slate-300 leading-relaxed">
+        ${comment.text}
+        </p>
+
         </div>
         `;
         });
@@ -790,32 +877,45 @@
         container.scrollHeight;
         }
 
-        // SAVE
+        // =========================
+        // SAVE FAVORITES / DOWNLOADS
+        // =========================
 
         function savePermanent(title, category) {
 
         let data =
-        JSON.parse(localStorage.getItem(category) || '[]');
+        JSON.parse(
+        localStorage.getItem(
+        getUserStorageKey(category)
+        ) || '[]'
+        );
 
         if (!data.includes(title)) {
 
         data.push(title);
 
         localStorage.setItem(
-        category,
+        getUserStorageKey(category),
         JSON.stringify(data)
         );
 
         toast(`${title} saved in ${category}`);
         }
+        else {
+
+        toast(`${title} already exists`);
+        }
         }
 
+        // =========================
         // SWITCH TABS
+        // =========================
 
         function switchTab(type, button) {
 
         document.querySelectorAll('.tab-btn')
-        .forEach(btn => btn.classList.remove('tab-active'));
+        .forEach(btn =>
+        btn.classList.remove('tab-active'));
 
         button.classList.add('tab-active');
 
@@ -834,7 +934,11 @@
         }
 
         const items =
-        JSON.parse(localStorage.getItem(type) || '[]');
+        JSON.parse(
+        localStorage.getItem(
+        getUserStorageKey(type)
+        ) || '[]'
+        );
 
         if (items.includes(title)) {
 
