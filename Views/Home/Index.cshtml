@@ -21,161 +21,195 @@
             <i class="fa-solid fa-circle-exclamation"></i> <span>@TempData["ErrorMessage"]</span>
         </div>
     }
+    @if (TempData["InfoMessage"] != null)
+    {
+        <div class="mb-4 p-4 bg-blue-950/40 border border-blue-500/30 rounded-xl text-blue-400 text-xs font-mono flex items-center gap-2">
+            <i class="fa-solid fa-circle-info"></i> <span>@TempData["InfoMessage"]</span>
+        </div>
+    }
 
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-900 pb-5 mb-6">
         <div>
             <h1 class="text-lg font-black font-mono tracking-tight uppercase">FILMFUSION ENTERPRISE</h1>
-            <p class="text-[10px] text-slate-500 font-mono tracking-wider">Node Management Interface v4.5 // Access: <span class="text-indigo-400">Root Admin</span></p>
+            <p class="text-[10px] text-slate-500 font-mono tracking-wider">Admin Control Panel v5.0 // Access: <span class="text-indigo-400">Root Admin</span></p>
         </div>
-
         <div class="flex flex-wrap items-center gap-3">
-            <a asp-controller="Home" asp-action="ExportUsersCSV" class="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-mono text-xs font-bold py-2 px-3 rounded-xl transition-all shadow-md">
-                <i class="fa-solid fa-file-csv text-purple-400 mr-1"></i> Export Users
-            </a>
-            <a asp-controller="Home" asp-action="ExportMoviesCSV" class="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-mono text-xs font-bold py-2 px-3 rounded-xl transition-all shadow-md">
-                <i class="fa-solid fa-download text-emerald-400 mr-1"></i> Export Movies
-            </a>
             <form asp-controller="Movies" asp-action="SeedDefaults" method="post" class="inline">
-                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-mono text-xs font-bold py-2 px-4 rounded-xl cursor-pointer shadow-md">
-                    <i class="fa-solid fa-cube"></i> Seed Vector
+                @Html.AntiForgeryToken()
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-mono text-xs font-bold py-2 px-4 rounded-xl cursor-pointer shadow-md flex items-center gap-1.5">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> Seed Popular Movies (TMDB)
                 </button>
             </form>
             <form asp-controller="Movies" asp-action="WipeAll" method="post" class="inline">
-                <button type="submit" class="bg-rose-950/40 hover:bg-rose-900/30 border border-rose-900/40 text-rose-400 font-mono text-xs font-bold py-2 px-4 rounded-xl cursor-pointer">
+                @Html.AntiForgeryToken()
+                <button type="submit" onclick="return confirm('Wipe all movies?')" class="bg-rose-950/40 hover:bg-rose-900/30 border border-rose-900/40 text-rose-400 font-mono text-xs font-bold py-2 px-4 rounded-xl cursor-pointer flex items-center gap-1.5">
                     <i class="fa-solid fa-trash-can"></i> Wipe All
                 </button>
             </form>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-slate-900/40 border border-slate-850 p-4 rounded-xl flex items-center justify-between">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-slate-900/40 border border-slate-800 p-4 rounded-xl flex items-center justify-between">
             <div>
-                <p class="text-[10px] font-mono text-slate-400 uppercase">Total Tracked Movies</p>
+                <p class="text-[10px] font-mono text-slate-400 uppercase">Total Movies</p>
                 <h3 class="text-xl font-black font-mono text-white mt-0.5">@Model.Count() Nodes</h3>
             </div>
             <i class="fa-solid fa-clapperboard text-indigo-500 text-lg opacity-40"></i>
         </div>
-        <div class="bg-slate-900/40 border border-slate-850 p-4 rounded-xl flex items-center justify-between">
+        <div class="bg-slate-900/40 border border-slate-800 p-4 rounded-xl flex items-center justify-between">
             <div>
-                <p class="text-[10px] font-mono text-slate-400 uppercase">Database Users Connected</p>
+                <p class="text-[10px] font-mono text-slate-400 uppercase">Registered Users</p>
                 <h3 class="text-xl font-black font-mono text-purple-400 mt-0.5">@(databaseUsers?.Count ?? 0) Active</h3>
             </div>
-            <i class="fa-solid fa-users-viewfinder text-purple-500 text-lg opacity-40"></i>
+            <i class="fa-solid fa-users text-purple-500 text-lg opacity-40"></i>
         </div>
-        <div class="bg-slate-900/40 border border-slate-850 p-4 rounded-xl flex items-center justify-between">
+        <div class="bg-slate-900/40 border border-slate-800 p-4 rounded-xl flex items-center justify-between">
             <div>
-                <p class="text-[10px] font-mono text-slate-400 uppercase">Storage Engine Core</p>
-                <h3 class="text-xs font-bold text-emerald-400 mt-1 font-mono">PostgreSQL Connected</h3>
+                <p class="text-[10px] font-mono text-slate-400 uppercase">Trending Movies</p>
+                <h3 class="text-xl font-black font-mono text-amber-400 mt-0.5">@ViewBag.TrendingCount Hot</h3>
+            </div>
+            <i class="fa-solid fa-fire text-amber-500 text-lg opacity-40"></i>
+        </div>
+        <div class="bg-slate-900/40 border border-slate-800 p-4 rounded-xl flex items-center justify-between">
+            <div>
+                <p class="text-[10px] font-mono text-slate-400 uppercase">Storage Engine</p>
+                <h3 class="text-xs font-bold text-emerald-400 mt-1 font-mono">PostgreSQL OK</h3>
             </div>
             <i class="fa-solid fa-database text-emerald-500 text-lg opacity-40"></i>
         </div>
     </div>
 
+    <!-- Charts -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div class="bg-slate-900/50 border border-slate-850 p-5 rounded-2xl">
-            <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 mb-4"><i class="fa-solid fa-chart-pie text-indigo-400 mr-2"></i>Database Storage Volumetrics</h3>
-            <div class="relative flex items-center justify-center max-h-[220px]">
+        <div class="bg-slate-900/50 border border-slate-800 p-5 rounded-2xl">
+            <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 mb-4">
+                <i class="fa-solid fa-chart-pie text-indigo-400 mr-2"></i>Database Storage Volumetrics
+            </h3>
+            <div class="relative flex items-center justify-center" style="max-height:220px">
                 <canvas id="adminPieChart"></canvas>
             </div>
         </div>
-        <div class="bg-slate-900/50 border border-slate-850 p-5 rounded-2xl">
-            <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 mb-4"><i class="fa-solid fa-chart-bar text-purple-400 mr-2"></i>System Resource Architecture</h3>
-            <div class="relative flex items-center justify-center max-h-[220px]">
+        <div class="bg-slate-900/50 border border-slate-800 p-5 rounded-2xl">
+            <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 mb-4">
+                <i class="fa-solid fa-chart-bar text-purple-400 mr-2"></i>System Resource Architecture
+            </h3>
+            <div class="relative flex items-center justify-center" style="max-height:220px">
                 <canvas id="adminBarChart"></canvas>
             </div>
         </div>
     </div>
 
+    <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
         <div class="lg:col-span-4 space-y-6">
 
+            <!-- TMDB Search — AJAX based, no page reload -->
             <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <h2 class="text-xs uppercase font-bold text-slate-400 tracking-wider font-mono mb-3"><i class="fa-solid fa-bars text-purple-400"></i> Management Terminal Links</h2>
-                <div class="flex flex-col gap-2">
-                    <a asp-controller="Home" asp-action="UsersControl" class="flex items-center gap-3 px-4 py-3 bg-slate-950 hover:bg-slate-900 border border-slate-850 hover:border-purple-500/40 text-slate-300 hover:text-purple-400 rounded-xl font-mono text-xs font-bold tracking-wide transition-all duration-200">
-                        <i class="fa-solid fa-users-gear text-purple-400"></i>
-                        <span>Users Control Panel</span>
-                        <span class="ml-auto text-[9px] bg-purple-950 text-purple-400 px-1.5 py-0.5 rounded border border-purple-900/40">Launch →</span>
-                    </a>
+                <h2 class="text-xs uppercase font-bold text-slate-400 tracking-wider font-mono mb-3">
+                    <i class="fa-solid fa-magnifying-glass text-indigo-400"></i> TMDB Movie Search
+                </h2>
+
+                <div class="flex gap-2 mb-2">
+                    <input type="text" id="tmdbSearchInput" placeholder="Search movie by title..."
+                           class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:border-indigo-500 text-white" />
+                    <button onclick="searchTMDB()" id="searchBtn"
+                            class="bg-indigo-600 hover:bg-indigo-700 px-4 rounded-xl text-xs font-bold font-mono cursor-pointer text-white whitespace-nowrap">
+                        Search
+                    </button>
                 </div>
-            </div>
 
-            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <h2 class="text-xs uppercase font-bold text-slate-400 tracking-wider font-mono mb-3"><i class="fa-solid fa-magnifying-glass text-indigo-400"></i> Cloud API Movie Probe</h2>
-                <form asp-controller="Movies" asp-action="ProbeMovie" method="post" class="flex gap-2 mb-2">
-                    <input type="text" name="searchQuery" required placeholder="Type movie asset name..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:border-indigo-500" />
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 px-4 rounded-xl text-xs font-bold font-mono cursor-pointer">Probe</button>
-                </form>
+                <!-- Loading indicator -->
+                <div id="searchLoading" class="hidden text-[10px] text-indigo-400 font-mono py-2">
+                    <i class="fa-solid fa-spinner fa-spin mr-1"></i> Probing TMDB...
+                </div>
 
-                @if (TempData["SearchResultTitle"] != null)
-                {
-                    <div class="mt-4 p-3 bg-slate-950 border border-indigo-500/30 rounded-xl space-y-3 animate-fade-in">
-                        <div class="flex gap-3">
-                            <img src="@TempData["SearchResultPoster"]" class="w-14 h-20 object-cover rounded-lg border border-slate-800 flex-shrink-0" alt="Preview Frame" />
-                            <div class="space-y-1">
-                                <h4 class="text-xs font-bold font-mono">@TempData["SearchResultTitle"]</h4>
-                                <p class="text-[11px] text-slate-400 line-clamp-3 leading-relaxed">@TempData["SearchResultDesc"]</p>
-                            </div>
+                <!-- Search result card -->
+                <div id="searchResultCard" class="hidden mt-4 p-3 bg-slate-950 border border-indigo-500/30 rounded-xl space-y-3">
+                    <div class="flex gap-3">
+                        <img id="srPosterImg" src="" class="w-14 h-20 object-cover rounded-lg border border-slate-800 flex-shrink-0" alt="Poster" />
+                        <div class="space-y-1 flex-1 min-w-0">
+                            <h4 id="srTitleText" class="text-xs font-bold font-mono text-white truncate"></h4>
+                            <p id="srRatingText" class="text-[10px] text-amber-400 font-mono"></p>
+                            <p id="srDescText" class="text-[11px] text-slate-400 line-clamp-3 leading-relaxed"></p>
                         </div>
-                        <form asp-controller="Movies" asp-action="ConfirmSave" method="post">
-                            <input type="hidden" name="title" value="@TempData["SearchResultTitle"]" />
-                            <input type="hidden" name="description" value="@TempData["SearchResultDesc"]" />
-                            <input type="hidden" name="posterUrl" value="@TempData["SearchResultPoster"]" />
-                            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] py-2 rounded-lg font-mono cursor-pointer flex items-center justify-center gap-1">
-                                <i class="fa-solid fa-circle-plus"></i> Add to Catalog
-                            </button>
-                        </form>
                     </div>
-                }
+                    <button onclick="addMovieToCatalog()" id="addBtn"
+                            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] py-2 rounded-lg font-mono cursor-pointer flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-circle-plus"></i> Add to Catalog
+                    </button>
+                </div>
+
+                <!-- Error from search -->
+                <div id="searchError" class="hidden mt-2 text-[10px] text-rose-400 font-mono"></div>
             </div>
 
+            <!-- Manual Add -->
             <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <h2 class="text-xs uppercase font-bold text-slate-400 tracking-wider font-mono mb-3"><i class="fa-solid fa-code-branch text-indigo-400"></i> Payload Injection</h2>
+                <h2 class="text-xs uppercase font-bold text-slate-400 tracking-wider font-mono mb-3">
+                    <i class="fa-solid fa-code-branch text-indigo-400"></i> Manual Movie Entry
+                </h2>
                 <form asp-controller="Movies" asp-action="ConfirmSave" method="post" class="space-y-3">
+                    @Html.AntiForgeryToken()
                     <div>
-                        <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">Asset Title Model</label>
-                        <input type="text" name="title" required placeholder="e.g. Inception" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-indigo-500" />
+                        <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">Title</label>
+                        <input type="text" name="title" required placeholder="e.g. Inception"
+                               class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-indigo-500 text-white" />
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">Genre Map</label>
-                            <input type="text" name="genre" placeholder="Sci-Fi, Action" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-indigo-500" />
+                            <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">Genre</label>
+                            <input type="text" name="genre" placeholder="Sci-Fi, Action"
+                                   class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-indigo-500 text-white" />
                         </div>
                         <div>
-                            <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">Age Security</label>
-                            <input type="number" name="targetAgeLimit" value="13" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-indigo-500" />
+                            <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">Age Limit</label>
+                            <input type="number" name="targetAgeLimit" value="13"
+                                   class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-indigo-500 text-white" />
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">Runtime Length</label>
-                            <input type="text" name="duration" placeholder="142 Mins" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-indigo-500" />
+                            <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">Duration</label>
+                            <input type="text" name="duration" placeholder="120 Mins"
+                                   class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-indigo-500 text-white" />
                         </div>
                         <div>
-                            <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">Poster Object URL</label>
-                            <input type="text" name="posterUrl" placeholder="https://..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-indigo-500" />
+                            <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">Poster URL</label>
+                            <input type="text" name="posterUrl" placeholder="https://..."
+                                   class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-indigo-500 text-white" />
                         </div>
                     </div>
                     <div>
-                        <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">Description Index Log</label>
-                        <textarea name="description" rows="2" placeholder="Summary logs..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+                        <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">Video URL (Trailer)</label>
+                        <input type="text" name="videoUrl" placeholder="https://youtube.com/watch?v=..."
+                               class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-indigo-500 text-white" />
                     </div>
-                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-mono font-bold text-xs py-2 rounded-xl cursor-pointer">Commit Node to Cluster</button>
+                    <div>
+                        <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1">Description</label>
+                        <textarea name="description" rows="2" placeholder="Movie summary..."
+                                  class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:border-indigo-500 text-white resize-none"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-mono font-bold text-xs py-2 rounded-xl cursor-pointer">
+                        Commit to Catalog
+                    </button>
                 </form>
             </div>
-
         </div>
 
+        <!-- Movie Catalog -->
         <div class="lg:col-span-8">
             <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <h2 class="text-xs uppercase font-bold text-slate-300 tracking-wider font-mono mb-4 pb-2 border-b border-slate-800"><i class="fa-solid fa-images text-indigo-400"></i> Active Storage Movie Catalog (Visual Layout)</h2>
+                <h2 class="text-xs uppercase font-bold text-slate-300 tracking-wider font-mono mb-4 pb-2 border-b border-slate-800">
+                    <i class="fa-solid fa-images text-indigo-400"></i> Active Movie Catalog (@Model.Count() movies)
+                </h2>
 
                 @if (!Model.Any())
                 {
                     <div class="py-20 text-center text-slate-600 font-mono text-xs border border-dashed border-slate-800 rounded-xl bg-slate-950/40">
-                        --- Empty Data Infrastructure Pipeline ---
+                        --- No movies in catalog. Click "Seed Popular Movies" to import from TMDB ---
                     </div>
                 }
                 else
@@ -183,36 +217,42 @@
                     <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 max-h-[680px] overflow-y-auto pr-1">
                         @foreach (var item in Model)
                         {
-                            <div id="movie-node-@item.Id" class="bg-slate-950 border border-slate-850 rounded-xl overflow-hidden shadow-md hover:border-indigo-500/50 transition-all duration-300 group flex flex-col relative">
+                            <div class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-md hover:border-indigo-500/50 transition-all duration-300 group flex flex-col">
                                 <div class="relative aspect-[2/3] w-full bg-slate-900 overflow-hidden">
                                     <img src="@(string.IsNullOrEmpty(item.PosterUrl) ? "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=500" : item.PosterUrl)"
                                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                         alt="Wallpaper Artwork" />
-
+                                         alt="@item.Title"
+                                         onerror="this.src='https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=500'" />
                                     <div class="absolute top-2 left-2 flex flex-col gap-1">
-                                        <span class="text-[8px] font-mono font-bold bg-slate-950/80 text-indigo-400 border border-slate-800 px-1 py-0.5 rounded backdrop-blur-sm uppercase">
-                                            @item.Genre
-                                        </span>
-                                        <span class="text-[8px] font-mono font-bold bg-rose-950/90 text-rose-400 border border-rose-900/40 px-1 py-0.5 rounded backdrop-blur-sm self-start">
-                                            @item.TargetAgeLimit+ Sec
-                                        </span>
+                                        <span class="text-[8px] font-mono font-bold bg-slate-950/80 text-indigo-400 border border-slate-800 px-1 py-0.5 rounded backdrop-blur-sm uppercase">@item.Genre</span>
+                                        @if (item.IsTrending)
+                                        {
+                                            <span class="text-[8px] font-mono font-bold bg-amber-500/90 text-slate-950 px-1 py-0.5 rounded">TRENDING</span>
+                                        }
                                     </div>
-
-                                    <button onclick="purgeMovieFromSystem('@item.Id', '@item.Title')" class="absolute top-2 right-2 w-6 h-6 bg-rose-950/90 hover:bg-rose-600 text-rose-400 hover:text-white rounded-lg border border-rose-900/40 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 shadow-lg cursor-pointer z-20" title="Purge Node From Database">
-                                        <i class="fa-solid fa-trash-can text-[10px]"></i>
-                                    </button>
-
-                                    <div class="absolute bottom-2 right-2">
-                                        <span class="text-[8px] font-mono bg-slate-950/80 text-slate-400 px-1.5 py-0.5 rounded border border-slate-850">
-                                            @item.Duration
-                                        </span>
+                                    @if (item.TmdbRating > 0)
+                                    {
+                                        <div class="absolute top-2 right-2">
+                                            <span class="text-[8px] font-mono bg-slate-950/80 text-amber-400 px-1.5 py-0.5 rounded border border-slate-800">
+                                                <i class="fa-solid fa-star text-[7px]"></i> @item.TmdbRating.ToString("F1")
+                                            </span>
+                                        </div>
+                                    }
+                                    <div class="absolute bottom-2 left-2 right-2">
+                                        <span class="text-[8px] font-mono bg-slate-950/80 text-slate-400 px-1.5 py-0.5 rounded border border-slate-800">@item.Duration</span>
                                     </div>
                                 </div>
-                                <div class="p-3 space-y-1 bg-slate-900/40 border-t border-slate-900 flex-grow flex flex-col justify-between">
-                                    <div>
-                                        <h3 class="text-xs font-bold text-white tracking-tight font-mono truncate" title="@item.Title">@item.Title</h3>
-                                        <p class="text-[10px] text-slate-400 line-clamp-2 leading-normal font-sans">@item.Description</p>
-                                    </div>
+                                <div class="p-2 bg-slate-900/40 border-t border-slate-900 flex flex-col gap-1">
+                                    <h3 class="text-[10px] font-bold text-white tracking-tight font-mono truncate" title="@item.Title">@item.Title</h3>
+                                    <p class="text-[9px] text-slate-500 line-clamp-2 leading-normal">@item.Description</p>
+                                    <form asp-controller="Home" asp-action="DeleteMovie" method="post" class="mt-1">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" onclick="return confirm('Delete @item.Title?')"
+                                                class="w-full bg-rose-950/40 hover:bg-rose-900/40 border border-rose-900/30 text-rose-400 text-[9px] font-mono py-1 rounded transition-all">
+                                            <i class="fa-solid fa-trash-can mr-1"></i> Delete
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         }
@@ -224,93 +264,157 @@
     </div>
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-    // 1. DATABASE DISTRIBUTION PIE CHART
-    var ctxPie = document.getElementById('adminPieChart').getContext('2d');
-    new Chart(ctxPie, {
-    type: 'pie',
-    data: {
-    labels: ['Total Asset Movies', 'Active Users'],
-    datasets: [{
-    data: [@ViewBag.TotalMoviesCount, @ViewBag.TotalUsersCount],
-    backgroundColor: ['#4f46e5', '#a855f7'],
-    borderColor: '#0f172a',
-    borderWidth: 2
-    }]
-    },
-    options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-    legend: {
-    position: 'bottom',
-    labels: { color: '#94a3b8', font: { family: 'monospace', size: 10 } }
-    }
-    }
-    }
-    });
+@section Scripts {
+    <script>
+        // ── Stored search result for adding later ──
+        let currentSearchResult = null;
+        const TMDB_API_KEY = '803c5c415552686319281c15b6564989';
+        const trailerPool = [
+        'https://www.youtube.com/watch?v=TcMBFSGVi1c',
+        'https://www.youtube.com/watch?v=mqqft2x_Aa4',
+        'https://www.youtube.com/watch?v=JfVOs4VSpmA',
+        'https://www.youtube.com/watch?v=8g18jFHCLXk',
+        'https://www.youtube.com/watch?v=shW9i6k8cB0',
+        'https://www.youtube.com/watch?v=Go8nTmfrQd8',
+        'https://www.youtube.com/watch?v=EXeTwQWrcwY',
+        'https://www.youtube.com/watch?v=zSWdZVtXT7E',
+        'https://www.youtube.com/watch?v=2AUmvWm5ZDQ',
+        'https://www.youtube.com/watch?v=zAGVQLHvwOY'
+        ];
 
-    // 2. RESOURCE ANALYTICS BAR CHART
-    var ctxBar = document.getElementById('adminBarChart').getContext('2d');
-    new Chart(ctxBar, {
-    type: 'bar',
-    data: {
-    labels: ['High Priority Core', 'Secondary Nodes'],
-    datasets: [{
-    label: 'Cluster Registry',
-    data: [@ViewBag.HighRatedMovies, @ViewBag.AvgRatedMovies],
-    backgroundColor: ['#10b981', '#f59e0b'],
-    borderRadius: 6
-    }]
-    },
-    options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-    y: { beginAtZero: true, grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 9 } } },
-    x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 } } }
-    },
-    plugins: {
-    legend: { display: false }
-    }
-    }
-    });
-    });
+        // Allow Enter key to trigger search
+        document.getElementById('tmdbSearchInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') searchTMDB();
+        });
 
-    // --- NEW ENGINE: FIXED ROUTE FOR AJAX PURGE LOGIC ---
-    function purgeMovieFromSystem(movieId, movieTitle) {
-    if (!confirm(`Are you sure you want to permanently delete "${movieTitle}" from PostgreSQL backend nodes?`)) {
-    return;
-    }
+        // ── STEP 1: Search TMDB directly from browser (no server round-trip) ──
+        async function searchTMDB() {
+        const query = document.getElementById('tmdbSearchInput').value.trim();
+        if (!query) return;
 
-    // URL path changed from '/Movies/DeleteMovieAsync' to '/Home/DeleteMovieAsync'
-    fetch('/Home/DeleteMovieAsync', {
-    method: 'POST',
-    headers: {
-    'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    body: `id=${encodeURIComponent(movieId)}`
-    })
-    .then(response => response.json())
-    .then(data => {
-    if (data.success) {
-    const targetCard = document.getElementById(`movie-node-${movieId}`);
-    if (targetCard) {
-    targetCard.style.transition = 'all 0.3s ease';
-    targetCard.style.opacity = '0';
-    targetCard.style.transform = 'scale(0.9)';
-    setTimeout(() => {
-    targetCard.remove();
-    }, 300);
-    }
-    } else {
-    alert("Error inside core pipeline: " + data.message);
-    }
-    })
-    .catch(error => {
-    console.error("Pipeline breakdown:", error);
-    alert("Failed to communicate with database cluster.");
-    });
-    }
-</script>
+        setSearchState('loading');
+
+        try {
+        const url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=en-US&page=1`;
+        const response = await fetch(url);
+
+        if (!response.ok) throw new Error('TMDB API request failed: ' + response.status);
+
+        const data = await response.json();
+
+        if (!data.results || data.results.length === 0) {
+        setSearchState('error', 'No movie found for "' + query + '"');
+        return;
+        }
+
+        const movie = data.results[0];
+        const posterUrl = movie.poster_path
+        ? 'https://image.tmdb.org/t/p/w500' + movie.poster_path
+        : 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=500';
+
+        const randomTrailer = trailerPool[Math.floor(Math.random() * trailerPool.length)];
+
+        currentSearchResult = {
+        title:          movie.title || '',
+        description:    movie.overview || 'No description available.',
+        posterUrl:      posterUrl,
+        videoUrl:       randomTrailer,
+        genre:          'Action, Sci-Fi',
+        duration:       '140 Mins',
+        targetAgeLimit: 13,
+        tmdbRating:     movie.vote_average || 0
+        };
+
+        // Show result card
+        document.getElementById('srPosterImg').src       = posterUrl;
+        document.getElementById('srTitleText').textContent  = movie.title;
+        document.getElementById('srRatingText').textContent = 'Rating: ' + (movie.vote_average || 0).toFixed(1) + ' / 10';
+        document.getElementById('srDescText').textContent   = movie.overview || 'No description.';
+
+        setSearchState('result');
+
+        } catch (err) {
+        setSearchState('error', 'Error: ' + err.message);
+        }
+        }
+
+        // ── STEP 2: Save movie to DB via ConfirmSave ──
+        async function addMovieToCatalog() {
+        if (!currentSearchResult) return;
+
+        const btn = document.getElementById('addBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Saving...';
+
+        try {
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+
+        const formData = new FormData();
+        formData.append('title',          currentSearchResult.title);
+        formData.append('description',    currentSearchResult.description);
+        formData.append('posterUrl',      currentSearchResult.posterUrl);
+        formData.append('videoUrl',       currentSearchResult.videoUrl);
+        formData.append('genre',          currentSearchResult.genre);
+        formData.append('duration',       currentSearchResult.duration);
+        formData.append('targetAgeLimit', currentSearchResult.targetAgeLimit);
+        formData.append('__RequestVerificationToken', token);
+
+        const response = await fetch('/Movies/ConfirmSave', {
+        method: 'POST',
+        body: formData
+        });
+
+        // ConfirmSave redirects to Home/Index on success — if we get a 200 back it worked
+        if (response.ok || response.redirected) {
+        btn.innerHTML = '<i class="fa-solid fa-circle-check mr-1"></i> Added! Reloading...';
+        setTimeout(() => window.location.reload(), 800);
+        } else {
+        throw new Error('Server returned ' + response.status);
+        }
+        } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-circle-plus"></i> Add to Catalog';
+        document.getElementById('searchError').textContent = 'Save failed: ' + err.message;
+        document.getElementById('searchError').classList.remove('hidden');
+        }
+        }
+
+        function setSearchState(state, message) {
+        document.getElementById('searchLoading').classList.add('hidden');
+        document.getElementById('searchResultCard').classList.add('hidden');
+        document.getElementById('searchError').classList.add('hidden');
+
+        if (state === 'loading') {
+        document.getElementById('searchLoading').classList.remove('hidden');
+        } else if (state === 'result') {
+        document.getElementById('searchResultCard').classList.remove('hidden');
+        } else if (state === 'error') {
+        document.getElementById('searchError').textContent = message;
+        document.getElementById('searchError').classList.remove('hidden');
+        }
+        }
+
+        // ── CHARTS ──
+        document.addEventListener("DOMContentLoaded", function () {
+        var ctxPie = document.getElementById('adminPieChart').getContext('2d');
+        new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+        labels: ['Total Movies', 'Active Users'],
+        datasets: [{ data: [@ViewBag.TotalMoviesCount, @ViewBag.TotalUsersCount], backgroundColor: ['#4f46e5','#a855f7'], borderColor: '#0f172a', borderWidth: 2 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { family: 'monospace', size: 10 } } } } }
+        });
+
+        var ctxBar = document.getElementById('adminBarChart').getContext('2d');
+        new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+        labels: ['High Rated (7+)', 'Others', 'Trending'],
+        datasets: [{ label: 'Movies', data: [@ViewBag.HighRatedMovies, @ViewBag.AvgRatedMovies, @ViewBag.TrendingCount], backgroundColor: ['#10b981','#f59e0b','#ef4444'], borderRadius: 6 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 9 } } }, x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9 } } } }, plugins: { legend: { display: false } } }
+        });
+        });
+    </script>
+}
