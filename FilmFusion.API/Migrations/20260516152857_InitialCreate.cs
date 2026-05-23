@@ -5,7 +5,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace FilmFusion.API.Migrations
 {
-    /// <inheritdoc />
+    
     public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
