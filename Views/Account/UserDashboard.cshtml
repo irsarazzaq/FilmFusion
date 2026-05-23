@@ -1,31 +1,39 @@
 ﻿@model IEnumerable<FilmFusion.Models.Movie>
+
 @{
     Layout = null;
+
+    var userName = Context.Session.GetString("UserName") ?? "User";
 }
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Dashboard Hub - FilmFusion</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>FilmFusion Dashboard</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
     <style>
+
         body {
-        background-color: #020617;
+        background: #020617;
         font-family: monospace;
+        overflow-x: hidden;
         }
 
         ::-webkit-scrollbar {
         width: 6px;
         }
 
-        ::-webkit-scrollbar-track {
-        background: #020617;
-        }
-
         ::-webkit-scrollbar-thumb {
-        background: #1e293b;
-        border-radius: 10px;
+        background: #7c3aed;
+        border-radius: 50px;
         }
 
         .tab-active {
@@ -33,470 +41,813 @@
         color: #a855f7;
         font-weight: bold;
         }
+
+        .custom-scroll {
+        scrollbar-width: thin;
+        }
+
+        .movie-card {
+        transition: 0.3s ease;
+        }
+
+        .movie-card:hover {
+        transform: translateY(-5px);
+        }
+
+        .comment-box::-webkit-scrollbar {
+        width: 4px;
+        }
+
+        .comment-box::-webkit-scrollbar-thumb {
+        background: #9333ea;
+        }
+
     </style>
 </head>
-<body class="min-h-screen text-slate-100 flex flex-col relative">
 
-    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-3 pointer-events-none"></div>
+<body class="min-h-screen text-white flex flex-col">
 
-    <header class="border-b border-slate-900 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center border border-purple-500/30">
-                <i class="fa-solid fa-clapperboard text-sm"></i>
+    <!-- TOAST -->
+
+    <div id="toast-container"
+         class="fixed top-5 right-5 z-[999] flex flex-col gap-3">
+    </div>
+
+    <!-- HEADER -->
+
+    <header class="sticky top-0 z-50 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800">
+
+        <div class="px-6 py-4 flex items-center justify-between">
+
+            <div class="flex items-center gap-4">
+
+                <div class="w-12 h-12 rounded-2xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center">
+                    <i class="fa-solid fa-clapperboard text-purple-400 text-lg"></i>
+                </div>
+
+                <div>
+                    <h1 class="text-sm font-black uppercase tracking-[0.3em]">
+                        FilmFusion
+                    </h1>
+
+                    <p class="text-[10px] text-slate-500 uppercase tracking-[0.25em]">
+                        AI Movie Dashboard
+                    </p>
+                </div>
+
             </div>
-            <div>
-                <span class="text-sm font-black tracking-wider uppercase text-white">FilmFusion</span>
-            </div>
-        </div>
 
-        <div class="flex items-center gap-6">
-            <div class="relative">
-                <button onclick="toggleNotificationDropdown()" class="relative p-2 text-slate-400 hover:text-purple-400 transition-colors focus:outline-none">
-                    <i class="fa-solid fa-bell text-lg"></i>
-                    <span id="noti-badge" class="absolute top-1 right-1 w-4 h-4 bg-purple-600 text-[9px] font-bold text-white rounded-full flex items-center justify-center border border-slate-950">9</span>
+            <!-- RIGHT SIDE -->
+
+            <div class="flex items-center gap-4">
+
+                <!-- NOTIFICATION -->
+
+                <button onclick="toggleNotifications()"
+                        class="relative bg-slate-900 border border-slate-800 hover:border-purple-500/40 w-12 h-12 rounded-xl flex items-center justify-center transition-all">
+
+                    <i class="fa-solid fa-bell text-purple-400"></i>
+
+                    <span id="noti-count"
+                          class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center">
+                        3
+                    </span>
+
                 </button>
 
-                <div id="noti-dropdown" class="hidden absolute right-0 mt-3 w-80 bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col font-sans">
-                    <div class="px-4 py-3 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
-                        <span class="text-xs font-bold uppercase tracking-wider text-purple-400 font-mono">SYSTEM LOG MATRIX</span>
-                        <button onclick="clearNotifications()" class="text-[10px] text-slate-500 hover:text-rose-400 font-mono">CLEAR ALL</button>
+                <!-- PROFILE -->
+
+                <button onclick="openProfileModal()"
+                        class="flex items-center gap-3 bg-slate-900 border border-slate-800 hover:border-purple-500/40 rounded-xl px-3 py-2 transition-all">
+
+                    <img id="profile-preview"
+                         src="https://ui-avatars.com/api/?name=@userName&background=7c3aed&color=fff"
+                         class="w-11 h-11 rounded-full object-cover border border-purple-500/30" />
+
+                    <div class="flex flex-col items-start">
+
+                        <span class="text-[10px] uppercase tracking-widest text-slate-500">
+                            User Node
+                        </span>
+
+                        <span id="username-display"
+                              class="text-xs font-bold uppercase">
+                            @userName
+                        </span>
+
                     </div>
-                    <div id="noti-items-box" class="divide-y divide-slate-900 text-xs text-slate-300 max-h-96 overflow-y-auto">
-                        <div class="p-3 hover:bg-slate-900/50 transition-colors font-mono">
-                            <p class="text-purple-400 text-[11px] font-bold">🔒 SECURITY INTERFACE</p>
-                            <p class="text-[11px] text-slate-400 mt-0.5">Secure terminal connection established successfully.</p>
-                        </div>
-                        <div class="p-3 hover:bg-slate-900/50 transition-colors font-mono">
-                            <p class="text-emerald-400 text-[11px] font-bold">📡 PIPELINE CONNECTED</p>
-                            <p class="text-[11px] text-slate-400 mt-0.5">Database storage nodes synced with cluster core.</p>
-                        </div>
-                        <div class="p-3 hover:bg-slate-900/50 transition-colors font-mono">
-                            <p class="text-sky-400 text-[11px] font-bold">🤖 AVATAR ENGINE</p>
-                            <p class="text-[11px] text-slate-400 mt-0.5">DiceBear identity vectors compiled for profile dashboard.</p>
-                        </div>
-                        <div class="p-3 hover:bg-slate-900/50 transition-colors font-mono">
-                            <p class="text-amber-400 text-[11px] font-bold">⚡ TELEMETRY BUFFER</p>
-                            <p class="text-[11px] text-slate-400 mt-0.5">Media stream server latency optimization active [9ms].</p>
-                        </div>
-                        <div class="p-3 hover:bg-slate-900/50 transition-colors font-mono">
-                            <p class="text-rose-400 text-[11px] font-bold">🛠️ INTEGRATION ENGINE</p>
-                            <p class="text-[11px] text-slate-400 mt-0.5">YouTube Stream Failover pipeline configured into local sandbox.</p>
-                        </div>
-                        <div class="p-3 hover:bg-slate-900/50 transition-colors font-mono">
-                            <p class="text-purple-400 text-[11px] font-bold">💾 MEMORY CORE</p>
-                            <p class="text-[11px] text-slate-400 mt-0.5">Session state variables localized and verification completed.</p>
-                        </div>
-                        <div class="p-3 hover:bg-slate-900/50 transition-colors font-mono">
-                            <p class="text-emerald-400 text-[11px] font-bold">🛡️ ENCRYPTION MATRIX</p>
-                            <p class="text-[11px] text-slate-400 mt-0.5">Cipher Password AES-256 validation pipeline initialized.</p>
-                        </div>
-                        <div class="p-3 hover:bg-slate-900/50 transition-colors font-mono">
-                            <p class="text-sky-400 text-[11px] font-bold">📊 CLUSTER SYNC</p>
-                            <p class="text-[11px] text-slate-400 mt-0.5">User evaluation star rating triggers attached to active views.</p>
-                        </div>
-                        <div class="p-3 hover:bg-slate-900/50 transition-colors font-mono">
-                            <p class="text-amber-400 text-[11px] font-bold">🚀 READY MODE</p>
-                            <p class="text-[11px] text-slate-400 mt-0.5">Gateway Token authenticated. Web Interface online.</p>
-                        </div>
-                    </div>
-                </div>
+
+                </button>
+
+                <!-- LOGOUT -->
+
+                <a href="@Url.Action("Logout", "Account")"
+                   class="bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500/20 text-rose-400 px-4 py-3 rounded-xl text-xs uppercase tracking-widest font-bold transition-all">
+
+                    <i class="fa-solid fa-power-off mr-1"></i>
+                    Logout
+
+                </a>
+
             </div>
 
-            <div class="flex items-center gap-4 border-l border-slate-800 pl-4">
-                <div class="flex flex-col items-end">
-                    <span class="text-[10px] uppercase tracking-widest text-slate-500">Identity Cluster</span>
-                    <strong class="text-xs text-slate-200 font-mono">@Context.Session.GetString("UserName")</strong>
-                </div>
-                <a href="@Url.Action("Logout", "Account")" class="text-xs font-bold uppercase tracking-wider text-rose-400 hover:text-rose-300 border border-rose-500/20 bg-rose-500/5 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
-                    <i class="fa-solid fa-power-off text-[10px]"></i> Disconnect
-                </a>
-            </div>
         </div>
+
     </header>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-8">
+    <!-- NOTIFICATION PANEL -->
 
-        <div class="flex flex-wrap gap-2 border-b border-slate-900 pb-px">
-            <button onclick="switchCategoryTab('all-movies', this)" class="tab-btn px-4 py-2 text-xs font-bold uppercase tracking-wider border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all tab-active">All System Movies</button>
-            <button onclick="switchCategoryTab('favorites', this)" class="tab-btn px-4 py-2 text-xs font-bold uppercase tracking-wider border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all">Favorites Hub</button>
-            <button onclick="switchCategoryTab('watch-later', this)" class="tab-btn px-4 py-2 text-xs font-bold uppercase tracking-wider border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all">Watch Later</button>
-            <button onclick="switchCategoryTab('downloads', this)" class="tab-btn px-4 py-2 text-xs font-bold uppercase tracking-wider border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all">Downloads Storage</button>
+    <div id="notification-panel"
+         class="hidden fixed top-24 right-5 z-[200] w-80 bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
+
+        <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+
+            <h2 class="text-sm uppercase tracking-widest font-bold text-purple-400">
+                Notifications
+            </h2>
+
+            <button onclick="toggleNotifications()">
+                <i class="fa-solid fa-xmark text-slate-400 hover:text-rose-400"></i>
+            </button>
+
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div class="max-h-96 overflow-y-auto custom-scroll">
 
-            @if (Model != null && Model.Any())
+            <div class="p-4 border-b border-slate-800 text-xs text-slate-300">
+                🎬 New movie added to collection.
+            </div>
+
+            <div class="p-4 border-b border-slate-800 text-xs text-slate-300">
+                ⭐ Your rating was saved successfully.
+            </div>
+
+            <div class="p-4 text-xs text-slate-300">
+                ❤️ Added movie to favorites.
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- MAIN -->
+
+    <main class="max-w-7xl w-full mx-auto p-6 space-y-8">
+
+        <!-- HERO -->
+
+        <section class="relative rounded-3xl overflow-hidden border border-slate-800 shadow-2xl">
+
+            <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent z-10"></div>
+
+            <iframe class="w-full aspect-[21/8]"
+                    src="https://www.youtube.com/embed/w7pYhpJaJW8?autoplay=1&mute=1&controls=0&loop=1&playlist=w7pYhpJaJW8"
+                    allowfullscreen>
+            </iframe>
+
+            <div class="absolute inset-0 z-20 flex flex-col justify-center px-10 max-w-2xl">
+
+                <span class="text-purple-400 uppercase tracking-[0.3em] text-xs font-bold mb-4">
+                    Featured Stream
+                </span>
+
+                <h1 class="text-6xl font-black">
+                    ALITA:BATTLE ANGEL
+                </h1>
+
+                <p class="mt-5 text-sm text-slate-300 leading-relaxed">
+                    An abandoned cyborg navigates a treacherous cyberpunk city to discover her true destiny as a legendary warrior.
+                </p>
+
+            </div>
+
+        </section>
+
+        <!-- TABS -->
+
+        <div class="flex flex-wrap gap-4 border-b border-slate-800 pb-3">
+
+            <button onclick="switchTab('all',this)"
+                    class="tab-btn tab-active px-4 py-2 text-xs uppercase tracking-widest border-b-2 border-transparent">
+                All Movies
+            </button>
+
+            <button onclick="switchTab('favorites',this)"
+                    class="tab-btn px-4 py-2 text-xs uppercase tracking-widest border-b-2 border-transparent">
+                Favorites
+            </button>
+
+            <button onclick="switchTab('watchlater',this)"
+                    class="tab-btn px-4 py-2 text-xs uppercase tracking-widest border-b-2 border-transparent">
+                Watch Later
+            </button>
+
+            <button onclick="switchTab('downloads',this)"
+                    class="tab-btn px-4 py-2 text-xs uppercase tracking-widest border-b-2 border-transparent">
+                Downloads
+            </button>
+
+        </div>
+
+        <!-- MOVIES -->
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+            @foreach (var movie in Model)
             {
-                foreach (var movie in Model)
-                {
-                    <div class="movie-card group bg-slate-950 border border-slate-900 rounded-2xl overflow-hidden hover:border-purple-500/40 transition-all flex flex-col shadow-xl"
-                         data-title="@movie.Title" data-fav="false" data-later="false" data-downloaded="false">
+                <div class="movie-card bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden flex flex-col"
+                     data-title="@movie.Title">
 
-                        <div class="relative aspect-[16/10] bg-slate-900 overflow-hidden">
-                            <img src="@movie.PosterUrl" alt="@movie.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+                    <div class="relative aspect-[16/10] overflow-hidden">
 
-                            <button onclick="playMovieInline('@movie.Title', '@movie.VideoUrl')" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-purple-600 hover:bg-purple-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform scale-90 group-hover:scale-100 z-10">
-                                <i class="fa-solid fa-play ml-0.5 text-sm"></i>
-                            </button>
+                        <img src="@movie.PosterUrl"
+                             class="w-full h-full object-cover hover:scale-105 transition-all duration-500" />
 
-                            <span class="absolute bottom-3 left-4 text-[10px] font-bold bg-slate-900/90 border border-slate-800 text-purple-400 px-2 py-0.5 rounded-md uppercase">
-                                @movie.Genre
-                            </span>
-                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
 
-                        <div class="p-4 flex-1 flex flex-col justify-between space-y-4">
-                            <div>
-                                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-100 line-clamp-1">@movie.Title</h3>
-                                <p class="text-[11px] text-slate-500 line-clamp-2 mt-1 font-sans">@movie.Description</p>
+                        <button onclick="playMovieInline('@movie.Title')"
+                                class="absolute inset-0 flex items-center justify-center">
+
+                            <div class="w-16 h-16 rounded-full bg-purple-600 hover:bg-purple-500 flex items-center justify-center shadow-2xl">
+                                <i class="fa-solid fa-play text-white text-lg"></i>
                             </div>
 
-                            <div class="flex items-center justify-between border-t border-slate-900/60 pt-3 text-[11px]">
-                                <div class="flex gap-3">
-                                    <button onclick="triggerFavorite('@movie.Title', this)" class="text-slate-500 hover:text-rose-400 transition-colors flex items-center" title="Add to Favorites">
-                                        <i class="fa-solid fa-heart"></i>
-                                    </button>
-                                    <button onclick="triggerWatchLater('@movie.Title', this)" class="text-slate-500 hover:text-sky-400 transition-colors flex items-center" title="Watch Later">
-                                        <i class="fa-solid fa-clock"></i>
-                                    </button>
-                                    <button onclick="triggerDownloadPipeline('@movie.Title', this)" class="text-slate-500 hover:text-emerald-400 transition-colors flex items-center" title="Download Movie">
-                                        <i class="fa-solid fa-arrow-down-long"></i>
-                                    </button>
-                                </div>
+                        </button>
 
-                                <div class="flex gap-0.5 text-slate-700">
-                                    @for (int i = 1; i <= 5; i++)
-                                    {
-                                        <i onclick="submitRatingEngine('@movie.Title', @i, this)" class="star-icon fa-solid fa-star cursor-pointer hover:text-amber-400 transition-colors"></i>
-                                    }
-                                </div>
-                            </div>
-                        </div>
                     </div>
-                }
+
+                    <div class="p-5 flex flex-col gap-4 flex-1">
+
+                        <div>
+
+                            <h2 class="text-sm font-bold uppercase tracking-wider">
+                                @movie.Title
+                            </h2>
+
+                            <p class="text-xs text-slate-500 mt-2 line-clamp-3">
+                                @movie.Description
+                            </p>
+
+                        </div>
+
+                        <div class="flex items-center justify-between mt-auto">
+
+                            <div class="flex gap-4 text-sm">
+
+                                <button onclick="savePermanent('@movie.Title','favorites')"
+                                        class="hover:text-rose-400 transition-all">
+                                    <i class="fa-solid fa-heart"></i>
+                                </button>
+
+                                <button onclick="savePermanent('@movie.Title','watchlater')"
+                                        class="hover:text-sky-400 transition-all">
+                                    <i class="fa-solid fa-clock"></i>
+                                </button>
+
+                                <button onclick="savePermanent('@movie.Title','downloads')"
+                                        class="hover:text-emerald-400 transition-all">
+                                    <i class="fa-solid fa-download"></i>
+                                </button>
+
+                            </div>
+
+                            <div class="flex gap-1 text-amber-400 text-xs">
+
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star-half-stroke"></i>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
             }
 
-            <div class="movie-card group bg-slate-950 border border-slate-900 rounded-2xl overflow-hidden hover:border-purple-500/40 transition-all flex flex-col shadow-xl" data-title="Dune: Part Two" data-fav="false" data-later="false" data-downloaded="true">
-                <div class="relative aspect-[16/10] bg-slate-900 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
-                    <button onclick="playMovieInline('Dune: Part Two', 'https://www.youtube.com/watch?v=Way9Dexny3w')" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-purple-600 hover:bg-purple-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform scale-90 group-hover:scale-100 z-10">
-                        <i class="fa-solid fa-play ml-0.5 text-sm"></i>
-                    </button>
-                    <span class="absolute bottom-3 left-4 text-[10px] font-bold bg-slate-900/90 border border-slate-800 text-amber-400 px-2 py-0.5 rounded-md uppercase">🔥 RECOMMENDATION</span>
-                </div>
-                <div class="p-4 flex-1 flex flex-col justify-between space-y-4">
-                    <div>
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-100 line-clamp-1">Dune: Part Two</h3>
-                        <p class="text-[11px] text-slate-500 line-clamp-2 mt-1 font-sans">Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.</p>
-                    </div>
-                    <div class="flex items-center justify-between border-t border-slate-900/60 pt-3 text-[11px]">
-                        <div class="flex gap-3">
-                            <button onclick="triggerFavorite('Dune: Part Two', this)" class="text-slate-500 hover:text-rose-400 transition-colors"><i class="fa-solid fa-heart"></i></button>
-                            <button onclick="triggerWatchLater('Dune: Part Two', this)" class="text-slate-500 hover:text-sky-400 transition-colors"><i class="fa-solid fa-clock"></i></button>
-                            <button onclick="triggerDownloadPipeline('Dune: Part Two', this)" class="text-emerald-400"><i class="fa-solid fa-arrow-down-long"></i></button>
-                        </div>
-                        <div class="flex gap-0.5 text-amber-400"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="movie-card group bg-slate-950 border border-slate-900 rounded-2xl overflow-hidden hover:border-purple-500/40 transition-all flex flex-col shadow-xl" data-title="Interstellar" data-fav="false" data-later="false" data-downloaded="true">
-                <div class="relative aspect-[16/10] bg-slate-900 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=500&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
-                    <button onclick="playMovieInline('Interstellar', 'https://www.youtube.com/watch?v=zSWdZVtXT7E')" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-purple-600 hover:bg-purple-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform scale-90 group-hover:scale-100 z-10">
-                        <i class="fa-solid fa-play ml-0.5 text-sm"></i>
-                    </button>
-                    <span class="absolute bottom-3 left-4 text-[10px] font-bold bg-slate-900/90 border border-slate-800 text-amber-400 px-2 py-0.5 rounded-md uppercase">🔥 Sci-Fi Choice</span>
-                </div>
-                <div class="p-4 flex-1 flex flex-col justify-between space-y-4">
-                    <div>
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-100 line-clamp-1">Interstellar Core</h3>
-                        <p class="text-[11px] text-slate-500 line-clamp-2 mt-1 font-sans">A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival on alternate nodes.</p>
-                    </div>
-                    <div class="flex items-center justify-between border-t border-slate-900/60 pt-3 text-[11px]">
-                        <div class="flex gap-3">
-                            <button onclick="triggerFavorite('Interstellar', this)" class="text-slate-500 hover:text-rose-400 transition-colors"><i class="fa-solid fa-heart"></i></button>
-                            <button onclick="triggerWatchLater('Interstellar', this)" class="text-slate-500 hover:text-sky-400 transition-colors"><i class="fa-solid fa-clock"></i></button>
-                            <button onclick="triggerDownloadPipeline('Interstellar', this)" class="text-emerald-400"><i class="fa-solid fa-arrow-down-long"></i></button>
-                        </div>
-                        <div class="flex gap-0.5 text-amber-400"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star text-slate-700"></i></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="movie-card group bg-slate-950 border border-slate-900 rounded-2xl overflow-hidden hover:border-purple-500/40 transition-all flex flex-col shadow-xl" data-title="The Batman" data-fav="false" data-later="false" data-downloaded="false">
-                <div class="relative aspect-[16/10] bg-slate-900 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
-                    <button onclick="playMovieInline('The Batman', 'https://www.youtube.com/watch?v=mqqft2x_Aa4')" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-purple-600 hover:bg-purple-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform scale-90 group-hover:scale-100 z-10">
-                        <i class="fa-solid fa-play ml-0.5 text-sm"></i>
-                    </button>
-                    <span class="absolute bottom-3 left-4 text-[10px] font-bold bg-slate-900/90 border border-slate-800 text-amber-400 px-2 py-0.5 rounded-md uppercase">🔥 Noir Action</span>
-                </div>
-                <div class="p-4 flex-1 flex flex-col justify-between space-y-4">
-                    <div>
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-100 line-clamp-1">The Batman (2022)</h3>
-                        <p class="text-[11px] text-slate-500 line-clamp-2 mt-1 font-sans">Batman ventures into Gotham City's underworld when a sadistic killer leaves behind a trail of cryptic riddles.</p>
-                    </div>
-                    <div class="flex items-center justify-between border-t border-slate-900/60 pt-3 text-[11px]">
-                        <div class="flex gap-3">
-                            <button onclick="triggerFavorite('The Batman', this)" class="text-slate-500 hover:text-rose-400 transition-colors"><i class="fa-solid fa-heart"></i></button>
-                            <button onclick="triggerWatchLater('The Batman', this)" class="text-slate-500 hover:text-sky-400 transition-colors"><i class="fa-solid fa-clock"></i></button>
-                            <button onclick="triggerDownloadPipeline('The Batman', this)" class="text-slate-500 hover:text-emerald-400 transition-colors"><i class="fa-solid fa-arrow-down-long"></i></button>
-                        </div>
-                        <div class="flex gap-0.5 text-amber-400"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="movie-card group bg-slate-950 border border-slate-900 rounded-2xl overflow-hidden hover:border-purple-500/40 transition-all flex flex-col shadow-xl" data-title="Cyberpunk Red" data-fav="false" data-later="false" data-downloaded="false">
-                <div class="relative aspect-[16/10] bg-slate-900 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
-                    <button onclick="playMovieInline('Cyberpunk Red', 'https://www.youtube.com/watch?v=U8XF6BfQLZg')" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-purple-600 hover:bg-purple-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform scale-90 group-hover:scale-100 z-10">
-                        <i class="fa-solid fa-play ml-0.5 text-sm"></i>
-                    </button>
-                    <span class="absolute bottom-3 left-4 text-[10px] font-bold bg-slate-900/90 border border-slate-800 text-amber-400 px-2 py-0.5 rounded-md uppercase">🔥 Premium Matrix</span>
-                </div>
-                <div class="p-4 flex-1 flex flex-col justify-between space-y-4">
-                    <div>
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-100 line-clamp-1">Cyberpunk Overdrive</h3>
-                        <p class="text-[11px] text-slate-500 line-clamp-2 mt-1 font-sans">A dark neon future matrix where AI modules and humans clash for server architecture domain control pipelines.</p>
-                    </div>
-                    <div class="flex items-center justify-between border-t border-slate-900/60 pt-3 text-[11px]">
-                        <div class="flex gap-3">
-                            <button onclick="triggerFavorite('Cyberpunk Red', this)" class="text-slate-500 hover:text-rose-400 transition-colors"><i class="fa-solid fa-heart"></i></button>
-                            <button onclick="triggerWatchLater('Cyberpunk Red', this)" class="text-slate-500 hover:text-sky-400 transition-colors"><i class="fa-solid fa-clock"></i></button>
-                            <button onclick="triggerDownloadPipeline('Cyberpunk Red', this)" class="text-slate-500 hover:text-emerald-400 transition-colors"><i class="fa-solid fa-arrow-down-long"></i></button>
-                        </div>
-                        <div class="flex gap-0.5 text-amber-400"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star text-slate-700"></i><i class="fa-solid fa-star text-slate-700"></i></div>
-                    </div>
-                </div>
-            </div>
-
         </div>
+
     </main>
 
-    <div id="inline-stream-modal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-lg hidden items-center justify-center z-50 p-4">
-        <div class="bg-black border border-slate-800 w-full max-w-4xl aspect-video rounded-3xl overflow-hidden shadow-2xl relative flex flex-col">
-            <div class="bg-slate-950 px-6 py-3 border-b border-slate-900 flex justify-between items-center">
-                <span id="modal-movie-title" class="text-xs font-bold uppercase tracking-widest text-slate-300">STREAM TERMINAL</span>
-                <button onclick="closeInlineStream()" class="text-slate-400 hover:text-rose-400 text-sm focus:outline-none">
-                    <i class="fa-solid fa-xmark mr-1"></i> CLOSE
+    <!-- VIDEO MODAL -->
+
+    <div id="video-modal"
+         class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[300] p-4 overflow-y-auto">
+
+        <div class="w-full max-w-7xl bg-slate-950 rounded-3xl border border-slate-800 overflow-hidden">
+
+            <!-- TOP -->
+
+            <div class="sticky top-0 z-20 bg-slate-950 border-b border-slate-800 px-6 py-4 flex items-center justify-between">
+
+                <h2 id="modal-title"
+                    class="text-sm uppercase tracking-widest font-bold text-purple-400">
+                    Streaming
+                </h2>
+
+                <button onclick="closeMovieModal()"
+                        class="w-10 h-10 rounded-full bg-rose-500/10 hover:bg-rose-500/20 flex items-center justify-center">
+
+                    <i class="fa-solid fa-xmark text-rose-400"></i>
+
                 </button>
+
             </div>
-            <div class="flex-1 bg-neutral-950 relative">
-                <iframe id="video-embed-iframe" class="w-full h-full border-0 absolute inset-0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+            <!-- CONTENT -->
+
+            <div class="grid lg:grid-cols-3">
+
+                <!-- VIDEO -->
+
+                <div class="lg:col-span-2">
+
+                    <div class="aspect-video">
+
+                        <iframe id="movie-frame"
+                                class="w-full h-full"
+                                allowfullscreen>
+                        </iframe>
+
+                    </div>
+
+                </div>
+
+                <!-- COMMENTS -->
+
+                <div class="border-l border-slate-800 flex flex-col h-[75vh]">
+
+                    <div class="p-4 border-b border-slate-800">
+
+                        <h3 class="text-sm uppercase tracking-widest font-bold text-purple-400">
+                            Live Comments
+                        </h3>
+
+                    </div>
+
+                    <div id="comments-container"
+                         class="flex-1 overflow-y-auto p-4 space-y-3 comment-box">
+                    </div>
+
+                    <div class="p-4 border-t border-slate-800 flex gap-3">
+
+                        <input type="text"
+                               id="comment-input"
+                               placeholder="Write comment..."
+                               class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-purple-500" />
+
+                        <button onclick="submitComment()"
+                                class="bg-purple-600 hover:bg-purple-500 px-5 rounded-xl text-sm font-bold uppercase">
+
+                            Send
+
+                        </button>
+
+                    </div>
+
+                </div>
+
             </div>
+
         </div>
+
+    </div>
+
+    <!-- PROFILE MODAL -->
+
+    <div id="profile-modal"
+         class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[400] p-4 overflow-y-auto">
+
+        <div class="w-full max-w-xl bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden">
+
+            <div class="sticky top-0 bg-slate-950 z-20 border-b border-slate-800 px-6 py-5 flex items-center justify-between">
+
+                <div>
+                    <h2 class="text-2xl font-black uppercase">
+                        User Profile
+                    </h2>
+
+                    <p class="text-xs text-slate-500 mt-1">
+                        Customize your profile
+                    </p>
+                </div>
+
+                <button onclick="closeProfileModal()"
+                        class="w-10 h-10 rounded-full bg-rose-500/10 hover:bg-rose-500/20 flex items-center justify-center">
+
+                    <i class="fa-solid fa-xmark text-rose-400"></i>
+
+                </button>
+
+            </div>
+
+            <div class="p-6 space-y-6">
+
+                <div class="flex flex-col items-center gap-4">
+
+                    <img id="main-profile-preview"
+                         src="https://ui-avatars.com/api/?name=@userName&background=7c3aed&color=fff"
+                         class="w-32 h-32 rounded-full object-cover border-4 border-purple-500/30" />
+
+                    <input type="file"
+                           accept="image/*"
+                           onchange="previewProfile(event)"
+                           class="text-xs text-slate-400" />
+
+                </div>
+
+                <!-- USERNAME -->
+
+                <div>
+
+                    <label class="text-xs uppercase tracking-widest text-slate-500">
+                        Username
+                    </label>
+
+                    <input type="text"
+                           id="username-input"
+                           value="@userName"
+                           class="w-full mt-2 bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm outline-none focus:border-purple-500" />
+
+                </div>
+
+                <!-- BIO -->
+
+                <div>
+
+                    <label class="text-xs uppercase tracking-widest text-slate-500">
+                        Bio
+                    </label>
+
+                    <textarea id="bio-input"
+                              rows="3"
+                              class="w-full mt-2 bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm outline-none focus:border-purple-500"></textarea>
+
+                </div>
+
+                <!-- INTERESTS -->
+
+                <div>
+
+                    <label class="text-xs uppercase tracking-widest text-slate-500">
+                        Interests
+                    </label>
+
+                    <input type="text"
+                           id="interest-input"
+                           class="w-full mt-2 bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm outline-none focus:border-purple-500" />
+
+                </div>
+
+                <button onclick="saveProfile()"
+                        class="w-full bg-purple-600 hover:bg-purple-500 py-3 rounded-xl uppercase tracking-widest text-sm font-bold">
+
+                    Save Profile
+
+                </button>
+
+            </div>
+
+        </div>
+
     </div>
 
     <script>
-        // Array of verified high-quality YouTube trailers for dynamic fallback logic
-        const fallbackTrailers = [
-        "https://www.youtube.com/watch?v=Com78i705Zk", // Avengers: Endgame
-        "https://www.youtube.com/watch?v=d9MyW72ELq0", // Avatar: The Way of Water
-        "https://www.youtube.com/watch?v=Way9Dexny3w", // Dune: Part Two
-        "https://www.youtube.com/watch?v=zSWdZVtXT7E", // Interstellar
-        "https://www.youtube.com/watch?v=mqqft2x_Aa4", // The Batman
-        "https://www.youtube.com/watch?v=U8XF6BfQLZg", // Cyberpunk 2077
-        "https://www.youtube.com/watch?v=6ZfuNTqbHE8", // Avengers (Original)
-        "https://www.youtube.com/watch?v=KykV5as6P9w"  // Kabhi Khushi Kabhie Gham
-        ];
 
-        // Toggle the visibility of the notification engine dropdown
-        function toggleNotificationDropdown() {
-        const dropdown = document.getElementById('noti-dropdown');
-        dropdown.classList.toggle('hidden');
-        }
+        // TOAST
 
-        // Action command to wipe notification rows smoothly
-        function clearNotifications() {
-        document.getElementById('noti-items-box').innerHTML = `
-        <div class="p-6 text-center text-slate-600 font-mono text-[11px]">
-        No system alerts buffered in telemetry matrix.
-        </div>`;
-        const badge = document.getElementById('noti-badge');
-        if(badge) badge.remove();
-        spawnPremiumToast("All active notifications cleared safely.", "purple");
-        }
+        function toast(message) {
 
-        // Real-time custom Premium Toast alerts injection engine to avoid window alert blocking
-        function spawnPremiumToast(message, variant = 'purple') {
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div');
-        toast.className = `flex items-center gap-3 px-5 py-3.5 bg-slate-900 border text-slate-100 rounded-xl shadow-2xl pointer-events-auto border-purple-500/40 transform translate-y-2 opacity-0 transition-all duration-300 max-w-md`;
+        const container =
+        document.getElementById('toast-container');
 
-        let colorSchema = 'text-purple-400';
-        if (variant === 'rose') colorSchema = 'text-rose-400';
-        if (variant === 'sky') colorSchema = 'text-sky-400';
-        if (variant === 'emerald') colorSchema = 'text-emerald-400';
-        if (variant === 'amber') colorSchema = 'text-amber-400';
+        const toast =
+        document.createElement('div');
 
-        toast.innerHTML = `
-        <div class="${colorSchema}"><i class="fa-solid fa-circle-info"></i></div>
-        <div class="text-xs font-bold uppercase tracking-wide">${message}</div>
-        `;
+        toast.className =
+        'bg-slate-900 border border-purple-500/40 text-white px-5 py-4 rounded-2xl shadow-2xl text-xs uppercase tracking-widest';
+
+        toast.innerText = message;
 
         container.appendChild(toast);
-        setTimeout(() => {
-        toast.classList.remove('translate-y-2', 'opacity-0');
-        }, 50);
 
         setTimeout(() => {
-        toast.classList.add('opacity-0', 'translate-y-1');
-        setTimeout(() => toast.remove(), 300);
-        }, 3500);
+
+        toast.remove();
+
+        }, 3000);
         }
 
-        // Tab Categories Navigation controller routing
-        function switchCategoryTab(category, buttonElement) {
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('tab-active'));
-        buttonElement.classList.add('tab-active');
+        // NOTIFICATIONS
 
-        const cards = document.querySelectorAll('.movie-card');
+        function toggleNotifications() {
+
+        document
+        .getElementById('notification-panel')
+        .classList.toggle('hidden');
+        }
+
+        // MOVIE TRAILERS
+
+        const movieTrailers = {
+
+        "Avengers":
+        "https://www.youtube.com/embed/eOrNdBpGMv8?autoplay=1",
+
+        "Interstellar":
+        "https://www.youtube.com/embed/zSWdZVtXT7E?autoplay=1",
+
+        "Batman":
+        "https://www.youtube.com/embed/mqqft2x_Aa4?autoplay=1",
+
+        "Joker":
+        "https://www.youtube.com/embed/zAGVQLHvwOY?autoplay=1",
+
+        "John Wick":
+        "https://www.youtube.com/embed/2AUmvWm5ZDQ?autoplay=1",
+
+        "Spider":
+        "https://www.youtube.com/embed/JfVOs4VSpmA?autoplay=1",
+
+        "Titanic":
+        "https://www.youtube.com/embed/kVrqfYjkTdQ?autoplay=1",
+
+        "Conjuring":
+        "https://www.youtube.com/embed/k10ETZ41q5o?autoplay=1",
+
+        "Maleficent":
+        "https://www.youtube.com/embed/w-XO4XiRop0?autoplay=1",
+
+        "Fast":
+        "https://www.youtube.com/embed/FUK2kdPsBws?autoplay=1"
+        };
+
+        // PLAY MOVIE
+
+        function playMovieInline(title) {
+
+        let selectedUrl =
+        "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1";
+
+        for (const key in movieTrailers) {
+
+        if (title.toLowerCase().includes(key.toLowerCase())) {
+
+        selectedUrl = movieTrailers[key];
+        break;
+        }
+        }
+
+        document.getElementById('modal-title').innerText =
+        title.toUpperCase();
+
+        document.getElementById('movie-frame').src =
+        selectedUrl;
+
+        document.getElementById('video-modal')
+        .classList.remove('hidden');
+
+        document.getElementById('video-modal')
+        .classList.add('flex');
+
+        loadComments(title);
+        }
+
+        function closeMovieModal() {
+
+        document.getElementById('video-modal')
+        .classList.remove('flex');
+
+        document.getElementById('video-modal')
+        .classList.add('hidden');
+
+        document.getElementById('movie-frame').src = "";
+        }
+
+        // PROFILE
+
+        function openProfileModal() {
+
+        document.getElementById('profile-modal')
+        .classList.remove('hidden');
+
+        document.getElementById('profile-modal')
+        .classList.add('flex');
+
+        document.getElementById('bio-input').value =
+        localStorage.getItem('bio') || '';
+
+        document.getElementById('interest-input').value =
+        localStorage.getItem('interests') || '';
+
+        document.getElementById('username-input').value =
+        localStorage.getItem('username') || '@userName';
+        }
+
+        function closeProfileModal() {
+
+        document.getElementById('profile-modal')
+        .classList.remove('flex');
+
+        document.getElementById('profile-modal')
+        .classList.add('hidden');
+        }
+
+        // IMAGE PREVIEW
+
+        function previewProfile(event) {
+
+        const reader = new FileReader();
+
+        reader.onload = function () {
+
+        document.getElementById('profile-preview').src =
+        reader.result;
+
+        document.getElementById('main-profile-preview').src =
+        reader.result;
+
+        localStorage.setItem(
+        'profile-image',
+        reader.result
+        );
+        };
+
+        reader.readAsDataURL(event.target.files[0]);
+        }
+
+        // SAVE PROFILE
+
+        function saveProfile() {
+
+        const username =
+        document.getElementById('username-input').value;
+
+        const bio =
+        document.getElementById('bio-input').value;
+
+        const interests =
+        document.getElementById('interest-input').value;
+
+        localStorage.setItem('username', username);
+        localStorage.setItem('bio', bio);
+        localStorage.setItem('interests', interests);
+
+        document.getElementById('username-display').innerText =
+        username;
+
+        toast("PROFILE SAVED SUCCESSFULLY");
+        }
+
+        // LOAD PROFILE
+
+        window.addEventListener('load', () => {
+
+        const image =
+        localStorage.getItem('profile-image');
+
+        const username =
+        localStorage.getItem('username');
+
+        if (image) {
+
+        document.getElementById('profile-preview').src =
+        image;
+
+        document.getElementById('main-profile-preview').src =
+        image;
+        }
+
+        if (username) {
+
+        document.getElementById('username-display').innerText =
+        username;
+        }
+        });
+
+        // COMMENTS
+
+        let currentMovie = "";
+
+        function submitComment() {
+
+        const input =
+        document.getElementById('comment-input');
+
+        const text =
+        input.value.trim();
+
+        if (!text) return;
+
+        let allComments =
+        JSON.parse(localStorage.getItem('movie-comments') || '{}');
+
+        if (!allComments[currentMovie]) {
+
+        allComments[currentMovie] = [];
+        }
+
+        allComments[currentMovie].push(text);
+
+        localStorage.setItem(
+        'movie-comments',
+        JSON.stringify(allComments)
+        );
+
+        input.value = '';
+
+        loadComments(currentMovie);
+        }
+
+        function loadComments(movieTitle) {
+
+        currentMovie = movieTitle;
+
+        const container =
+        document.getElementById('comments-container');
+
+        container.innerHTML = '';
+
+        let allComments =
+        JSON.parse(localStorage.getItem('movie-comments') || '{}');
+
+        let comments =
+        allComments[movieTitle] || [];
+
+        comments.forEach(comment => {
+
+        container.innerHTML += `
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-slate-300">
+        ${comment}
+        </div>
+        `;
+        });
+
+        container.scrollTop =
+        container.scrollHeight;
+        }
+
+        // SAVE
+
+        function savePermanent(title, category) {
+
+        let data =
+        JSON.parse(localStorage.getItem(category) || '[]');
+
+        if (!data.includes(title)) {
+
+        data.push(title);
+
+        localStorage.setItem(
+        category,
+        JSON.stringify(data)
+        );
+
+        toast(`${title} saved in ${category}`);
+        }
+        }
+
+        // SWITCH TABS
+
+        function switchTab(type, button) {
+
+        document.querySelectorAll('.tab-btn')
+        .forEach(btn => btn.classList.remove('tab-active'));
+
+        button.classList.add('tab-active');
+
+        const cards =
+        document.querySelectorAll('.movie-card');
+
         cards.forEach(card => {
-        if (category === 'all-movies') {
+
+        const title =
+        card.getAttribute('data-title');
+
+        if (type === 'all') {
+
         card.style.display = 'flex';
-        } else if (category === 'favorites') {
-        card.style.display = card.getAttribute('data-fav') === 'true' ? 'flex' : 'none';
-        } else if (category === 'watch-later') {
-        card.style.display = card.getAttribute('data-later') === 'true' ? 'flex' : 'none';
-        } else if (category === 'downloads') {
-        card.style.display = card.getAttribute('data-downloaded') === 'true' ? 'flex' : 'none';
-        }
-        });
+        return;
         }
 
-        function playMovieInline(title, videoUrl) {
-        // FIXED: If database link doesn't exist, pick a random trailer link from fallback array
-        if (!videoUrl || videoUrl.trim() === "" || videoUrl === "#" || videoUrl.includes("null")) {
-        const randomIndex = Math.floor(Math.random() * fallbackTrailers.length);
-        videoUrl = fallbackTrailers[randomIndex];
-        spawnPremiumToast(`Fallback: Playing hardcoded trailer archive for "${title}"`, "amber");
-        }
+        const items =
+        JSON.parse(localStorage.getItem(type) || '[]');
 
-        // Convert watch link to structural embedding stream node format
-        if(videoUrl.includes("watch?v=")) {
-        videoUrl = videoUrl.replace("watch?v=", "embed/") + "?autoplay=1";
-        } else if(videoUrl.includes("youtu.be/")) {
-        videoUrl = videoUrl.replace("youtu.be/", "www.youtube.com/embed/") + "?autoplay=1";
-        }
+        if (items.includes(title)) {
 
-        // FIXED: InnerText change removed, now targeting only the text title placeholder node inside modal
-        document.getElementById('modal-movie-title').innerText = "STREAMING: " + title.toUpperCase();
-        document.getElementById('video-embed-iframe').src = videoUrl;
+        card.style.display = 'flex';
 
-        document.getElementById('inline-stream-modal').classList.remove('hidden');
-        document.getElementById('inline-stream-modal').classList.add('flex');
-        }
-
-        function closeInlineStream() {
-        document.getElementById('inline-stream-modal').classList.remove('flex');
-        document.getElementById('inline-stream-modal').classList.add('hidden');
-        document.getElementById('video-embed-iframe').src = "";
-        }
-
-        function triggerFavorite(title, element) {
-        fetch('/Account/ToggleFavorite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `movieTitle=${encodeURIComponent(title)}`
-        })
-        .then(res => res.json())
-        .then(data => {
-        const card = element.closest('.movie-card');
-        card.setAttribute('data-fav', 'true');
-        element.classList.remove('text-slate-500');
-        element.classList.add('text-rose-400');
-        spawnPremiumToast(`'${title}' successfully configured into favorites index.`, "rose");
-        }).catch(err => {
-        // UI failover handler for testing without controller endpoint binding
-        const card = element.closest('.movie-card');
-        card.setAttribute('data-fav', 'true');
-        element.classList.remove('text-slate-500');
-        element.classList.add('text-rose-400');
-        spawnPremiumToast(`'${title}' successfully configured into favorites index.`, "rose");
-        });
-        }
-
-        // Close dropdown when clicking outside
-        window.addEventListener('click', function(e) {
-        const dropdown = document.getElementById('noti-dropdown');
-        const bell = document.querySelector('.fa-bell');
-        if (dropdown && !dropdown.contains(e.target) && e.target !== bell && !bell.contains(e.target)) {
-        dropdown.classList.add('hidden');
-        }
-        });
-
-        function triggerWatchLater(title, element) {
-        fetch('/Account/ToggleWatchLater', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `movieTitle=${encodeURIComponent(title)}`
-        })
-        .then(res => res.json())
-        .then(data => {
-        const card = element.closest('.movie-card');
-        card.setAttribute('data-later', 'true');
-        element.classList.remove('text-slate-500');
-        element.classList.add('text-sky-400');
-        spawnPremiumToast(`'${title}' injected into watch later data cache.`, "sky");
-        }).catch(err => {
-        const card = element.closest('.movie-card');
-        card.setAttribute('data-later', 'true');
-        element.classList.remove('text-slate-500');
-        element.classList.add('text-sky-400');
-        spawnPremiumToast(`'${title}' injected into watch later data cache.`, "sky");
-        });
-        }
-
-        // Trigger simulation for mock download stream infrastructure
-        function triggerDownloadPipeline(title, element) {
-        const card = element.closest('.movie-card');
-        card.setAttribute('data-downloaded', 'true');
-        element.classList.remove('text-slate-500');
-        element.classList.add('text-emerald-400');
-        spawnPremiumToast(`📥 Download Started: "${title.toUpperCase()}" matrix buffer active!`, "emerald");
-        }
-
-        function submitRatingEngine(title, starCount, element) {
-        fetch('/Account/SubmitMovieRating', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `movieTitle=${encodeURIComponent(title)}&stars=${starCount}`
-        })
-        .then(res => res.json())
-        .then(data => {
-        const parent = element.parentElement;
-        const stars = parent.querySelectorAll('.star-icon');
-        stars.forEach((star, index) => {
-        if(index < starCount) {
-        star.classList.remove('text-slate-700');
-        star.classList.add('text-amber-400');
         } else {
-        star.classList.remove('text-amber-400');
-        star.classList.add('text-slate-700');
+
+        card.style.display = 'none';
         }
         });
-        spawnPremiumToast(`Successfully assigned ${starCount} Stars to evaluation metrics.`, "amber");
-        }).catch(err => {
-        const parent = element.parentElement;
-        const stars = parent.querySelectorAll('.star-icon');
-        stars.forEach((star, index) => {
-        if(index < starCount) {
-        star.classList.remove('text-slate-700');
-        star.classList.add('text-amber-400');
-        } else {
-        star.classList.remove('text-amber-400');
-        star.classList.add('text-slate-700');
         }
-        });
-        spawnPremiumToast(`Successfully assigned ${starCount} Stars to evaluation metrics.`, "amber");
-        });
-        }
+
     </script>
+
 </body>
 </html>
