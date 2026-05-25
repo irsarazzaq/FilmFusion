@@ -18,9 +18,9 @@
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
-    <div class="max-w-md w-full bg-slate-950/75 backdrop-blur-xl border border-slate-800/80 rounded-3xl p-8 shadow-2xl space-y-6">
+    <div class="max-w-md w-full bg-slate-950/75 backdrop-blur-xl border border-indigo-900/50 rounded-3xl p-8 shadow-2xl space-y-6">
         <div class="text-center">
-            <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-red-600/20 text-red-400 mb-3 border border-red-500/30">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-indigo-600/20 text-indigo-300 mb-3 border border-indigo-500/30">
                 <i class="fa-solid fa-user-gear text-xl"></i>
             </div>
             <h2 class="text-2xl font-black uppercase tracking-wider text-white">Admin Console</h2>
@@ -29,28 +29,56 @@
 
         @if (TempData["ErrorMessage"] != null)
         {
-            <div class="p-3 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs rounded-xl text-center">
+            <div class="p-3 bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs rounded-xl text-center">
                 <i class="fa-solid fa-circle-exclamation mr-1"></i> @TempData["ErrorMessage"]
             </div>
         }
 
         <form asp-controller="Account" asp-action="AdminLogin" method="post" autocomplete="off" class="space-y-4">
             @Html.AntiForgeryToken()
+
             <div>
-                <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-2">System Username</label>
+                <label class="text-[10px] text-indigo-300 font-bold uppercase tracking-wider block mb-2">
+                    System Username
+                </label>
+
                 <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500"><i class="fa-solid fa-terminal text-xs"></i></span>
-                    <input type="text" name="email" required autocomplete="new-password" placeholder="Enter admin username" class="w-full bg-slate-900/90 border border-slate-800 rounded-xl pl-10 pr-4 py-3.5 text-xs text-white focus:outline-none focus:border-red-500 transition-colors shadow-inner" />
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500">
+                        <i class="fa-solid fa-terminal text-xs"></i>
+                    </span>
+
+                    <input type="text"
+                           name="email"
+                           required
+                           autocomplete="new-password"
+                           placeholder="Enter admin username"
+                           class="w-full bg-slate-900/90 border border-slate-800 rounded-xl pl-10 pr-4 py-3.5 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors shadow-inner" />
                 </div>
             </div>
+
             <div>
-                <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-2">Console Password</label>
+                <label class="text-[10px] text-indigo-300 font-bold uppercase tracking-wider block mb-2">
+                    Console Password
+                </label>
+
                 <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500"><i class="fa-solid fa-key text-xs"></i></span>
-                    <input type="password" name="password" required autocomplete="new-password" placeholder="••••••••" class="w-full bg-slate-900/90 border border-slate-800 rounded-xl pl-10 pr-4 py-3.5 text-xs text-white focus:outline-none focus:border-red-500 transition-colors shadow-inner" />
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500">
+                        <i class="fa-solid fa-key text-xs"></i>
+                    </span>
+
+                    <input type="password"
+                           name="password"
+                           required
+                           autocomplete="new-password"
+                           placeholder="••••••••"
+                           class="w-full bg-slate-900/90 border border-slate-800 rounded-xl pl-10 pr-4 py-3.5 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors shadow-inner" />
                 </div>
             </div>
-            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-3.5 rounded-xl transition-all shadow-lg uppercase tracking-wider mt-2">Authorize Terminal</button>
+
+            <button type="submit"
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-3.5 rounded-xl transition-all shadow-lg uppercase tracking-wider mt-2">
+                Authorize Terminal
+            </button>
         </form>
     </div>
 </body>

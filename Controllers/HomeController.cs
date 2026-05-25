@@ -166,7 +166,7 @@ namespace FilmFusion.Controllers
 
         // ==========================================
         // 6. SAFE CSV FORMATTER
-        // ==========================================
+        // ======================
         private string EscapeCSV(string value)
         {
             if (string.IsNullOrEmpty(value))
