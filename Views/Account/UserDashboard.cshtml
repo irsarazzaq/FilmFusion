@@ -247,6 +247,11 @@
                 Downloads
             </button>
 
+            <button onclick="switchTab('history',this)"
+                    class="tab-btn px-4 py-2 text-xs uppercase tracking-widest border-b-2 border-transparent">
+                Watch History
+            </button>
+
         </div>
 
         <!-- MOVIES -->
@@ -572,38 +577,24 @@
 
         const movieTrailers = {
 
-        "Avengers":
-        "https://www.youtube.com/embed/eOrNdBpGMv8?autoplay=1",
-
-        "Interstellar":
-        "https://www.youtube.com/embed/zSWdZVtXT7E?autoplay=1",
-
-        "Batman":
-        "https://www.youtube.com/embed/mqqft2x_Aa4?autoplay=1",
-
-        "Joker":
-        "https://www.youtube.com/embed/zAGVQLHvwOY?autoplay=1",
-
-        "John Wick":
-        "https://www.youtube.com/embed/2AUmvWm5ZDQ?autoplay=1",
-
-        "Spider":
-        "https://www.youtube.com/embed/JfVOs4VSpmA?autoplay=1",
-
-        "Titanic":
-        "https://www.youtube.com/embed/kVrqfYjkTdQ?autoplay=1",
-
-        "Conjuring":
-        "https://www.youtube.com/embed/k10ETZ41q5o?autoplay=1",
-
-        "Maleficent":
-        "https://www.youtube.com/embed/w-XO4XiRop0?autoplay=1",
-
-        "Fast":
-        "https://www.youtube.com/embed/FUK2kdPsBws?autoplay=1",
-
-        "Alita":
-        "https://www.youtube.com/embed/w7pYhpJaJW8?autoplay=1"
+        "avengers":"https://www.youtube.com/embed/eOrNdBpGMv8?autoplay=1",
+        "endgame":"https://www.youtube.com/embed/TcMBFSGVi1c?autoplay=1",
+        "infinity":"https://www.youtube.com/embed/6ZfuNTqbHE8?autoplay=1",
+        "spider":"https://www.youtube.com/embed/JfVOs4VSpmA?autoplay=1",
+        "batman":"https://www.youtube.com/embed/mqqft2x_Aa4?autoplay=1",
+        "joker":"https://www.youtube.com/embed/zAGVQLHvwOY?autoplay=1",
+        "john":"https://www.youtube.com/embed/2AUmvWm5ZDQ?autoplay=1",
+        "wick":"https://www.youtube.com/embed/2AUmvWm5ZDQ?autoplay=1",
+        "interstellar":"https://www.youtube.com/embed/zSWdZVtXT7E?autoplay=1",
+        "titanic":"https://www.youtube.com/embed/kVrqfYjkTdQ?autoplay=1",
+        "conjuring":"https://www.youtube.com/embed/k10ETZ41q5o?autoplay=1",
+        "fast":"https://www.youtube.com/embed/FUK2kdPsBws?autoplay=1",
+        "alita":"https://www.youtube.com/embed/w7pYhpJaJW8?autoplay=1",
+        "housefull":"https://www.youtube.com/embed/zWMYAc6A7eQ?autoplay=1",
+        "kabhi":"https://www.youtube.com/embed/8M7nqANn8QA?autoplay=1",
+        "khushi":"https://www.youtube.com/embed/8M7nqANn8QA?autoplay=1",
+        "dhoom":"https://www.youtube.com/embed/OlM2qzmibis?autoplay=1",
+        "bhool":"https://www.youtube.com/embed/ss-7iGf1xE8?autoplay=1"
         };
 
         // =========================
@@ -612,29 +603,31 @@
 
         function playMovieInline(title) {
 
+        let history =
+        JSON.parse(localStorage.getItem(getUserStorageKey('history')) || '[]');
+
+        if (!history.includes(title)) {
+        history.push(title);
+        localStorage.setItem(getUserStorageKey('history'), JSON.stringify(history));
+        }
+
         let selectedUrl =
-        "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1";
+        "https://www.youtube.com/embed/w7pYhpJaJW8?autoplay=1";
+
+        const lowerTitle = title.toLowerCase();
 
         for (const key in movieTrailers) {
-
-        if (title.toLowerCase().includes(key.toLowerCase())) {
-
+        if (lowerTitle.includes(key)) {
         selectedUrl = movieTrailers[key];
         break;
         }
         }
 
-        document.getElementById('modal-title').innerText =
-        title.toUpperCase();
+        document.getElementById('modal-title').innerText = title.toUpperCase();
+        document.getElementById('movie-frame').src = selectedUrl;
 
-        document.getElementById('movie-frame').src =
-        selectedUrl;
-
-        document.getElementById('video-modal')
-        .classList.remove('hidden');
-
-        document.getElementById('video-modal')
-        .classList.add('flex');
+        document.getElementById('video-modal').classList.remove('hidden');
+        document.getElementById('video-modal').classList.add('flex');
 
         document.body.style.overflow = "hidden";
 
@@ -884,27 +877,17 @@
         function savePermanent(title, category) {
 
         let data =
-        JSON.parse(
-        localStorage.getItem(
-        getUserStorageKey(category)
-        ) || '[]'
-        );
+        JSON.parse(localStorage.getItem(getUserStorageKey(category)) || '[]');
 
         if (!data.includes(title)) {
-
         data.push(title);
-
-        localStorage.setItem(
-        getUserStorageKey(category),
-        JSON.stringify(data)
-        );
-
         toast(`${title} saved in ${category}`);
+        } else {
+        data = data.filter(x => x !== title);
+        toast(`${title} removed from ${category}`);
         }
-        else {
 
-        toast(`${title} already exists`);
-        }
+        localStorage.setItem(getUserStorageKey(category), JSON.stringify(data));
         }
 
         // =========================
@@ -914,40 +897,27 @@
         function switchTab(type, button) {
 
         document.querySelectorAll('.tab-btn')
-        .forEach(btn =>
-        btn.classList.remove('tab-active'));
+        .forEach(btn => btn.classList.remove('tab-active'));
 
+        if(button){
         button.classList.add('tab-active');
+        }
 
-        const cards =
-        document.querySelectorAll('.movie-card');
+        const cards = document.querySelectorAll('.movie-card');
 
         cards.forEach(card => {
 
-        const title =
-        card.getAttribute('data-title');
+        const title = card.getAttribute('data-title');
 
-        if (type === 'all') {
-
+        if(type === 'all'){
         card.style.display = 'flex';
         return;
         }
 
         const items =
-        JSON.parse(
-        localStorage.getItem(
-        getUserStorageKey(type)
-        ) || '[]'
-        );
+        JSON.parse(localStorage.getItem(getUserStorageKey(type)) || '[]');
 
-        if (items.includes(title)) {
-
-        card.style.display = 'flex';
-
-        } else {
-
-        card.style.display = 'none';
-        }
+        card.style.display = items.includes(title) ? 'flex' : 'none';
         });
         }
 
